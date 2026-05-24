@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/*.js", "use": "@vercel/node" },
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "favicon.svg", "use": "@vercel/static" },
+    { "src": "data/*.json", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/onboarding-trigger", "dest": "/api/onboarding-trigger.js" },
+    { "src": "/api/stripe-webhook", "dest": "/api/stripe-webhook.js" },
+    { "src": "/data/(.*)", "dest": "/data/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ],
+  "env": {
+    "FLOW_REVIEWER_SHARED_SECRET": "@flow_reviewer_shared_secret"
+  }
+}

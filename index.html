@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flow Reviewer — Flow Bookkeeping Services</title>
+  <meta name="description" content="Flow Reviewer: post-onboarding upsell operations, monthly subscription tracking, review links, and export-ready dashboards for Flow Bookkeeping Services clients." />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@300,400,500,600,700&f[]=cabinet-grotesk@500,600,700,800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#f7f6f2; --surface:#fbfaf7; --surface-2:#f0ede7; --surface-3:#e7e2da;
+      --text:#1f2b25; --muted:#68766f; --faint:#99a7a0; --border:#d7d3cc;
+      --primary:#0f766e; --primary-2:#115e59; --primary-soft:#dceceb;
+      --success:#2f855a; --warning:#b7791f; --danger:#b83280; --info:#245fa7;
+      --radius-sm:12px; --radius-md:18px; --radius-lg:24px;
+      --shadow:0 12px 28px rgba(17,28,25,.08); --ring:rgba(15,118,110,.18);
+    }
+    [data-theme="dark"] {
+      --bg:#121815; --surface:#18201c; --surface-2:#1d2823; --surface-3:#24332c;
+      --text:#edf5f0; --muted:#9db0a7; --faint:#73857d; --border:#31423a;
+      --primary:#59c8bb; --primary-2:#34b3a5; --primary-soft:#203834;
+      --success:#7fd69e; --warning:#f4bf69; --danger:#ef9bc6; --info:#7fb2ef;
+      --shadow:0 16px 36px rgba(0,0,0,.32); --ring:rgba(89,200,187,.22);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:'General Sans',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+    h1,h2,h3,h4{font-family:'Cabinet Grotesk','General Sans',sans-serif;letter-spacing:-.02em;margin:0}
+    p{margin:0;color:var(--muted)}
+    a{color:inherit;text-decoration:none}
+    button,input,select,textarea{font:inherit;color:inherit}
+    button{cursor:pointer}
+    .app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+    .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px;display:flex;flex-direction:column;gap:20px;position:sticky;top:0;height:100vh;overflow-y:auto}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand-mark{width:44px;height:44px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;display:grid;place-items:center;font-weight:800;font-size:1rem;box-shadow:var(--shadow);flex-shrink:0}
+    .brand small{display:block;color:var(--muted);font-size:.82rem}
+    .nav{display:grid;gap:6px}
+    .nav button{padding:12px 14px;border-radius:14px;border:1px solid transparent;background:transparent;text-align:left;color:var(--muted);font-weight:600;transition:.15s ease}
+    .nav button.active,.nav button:hover{background:var(--surface-2);color:var(--text);border-color:var(--border)}
+    .sidebar-card{padding:16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);display:grid;gap:8px}
+    .main{padding:28px;display:grid;gap:22px;align-content:start}
+    .topbar{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+    .topbar-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{border:none;border-radius:14px;padding:11px 16px;font-weight:700;display:inline-flex;align-items:center;gap:8px;transition:.18s ease;font-size:.92rem}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+    .btn-danger{background:var(--danger);color:#fff}
+    .btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;box-shadow:0 0 0 4px var(--ring)}
+    .hero{display:grid;grid-template-columns:1.25fr .95fr;gap:20px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow)}
+    .panel{padding:22px}
+    .eyebrow{font-size:.82rem;text-transform:uppercase;letter-spacing:.14em;color:var(--primary);font-weight:800}
+    .hero-copy{display:grid;gap:16px;padding:28px}
+    .hero-copy h2{font-size:clamp(1.5rem,3vw,2.2rem);line-height:1.1}
+    .hero-side{display:grid;gap:14px;padding:24px;background:linear-gradient(180deg,var(--surface),var(--surface-2));border-radius:var(--radius-md)}
+    .progress{height:10px;border-radius:999px;background:var(--surface-3);overflow:hidden}
+    .progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),#38b2ac);border-radius:999px}
+    .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+    .kpi{padding:18px}
+    .kpi strong{display:block;font-size:1.8rem;font-family:'Cabinet Grotesk',sans-serif;letter-spacing:-.03em;margin-top:4px}
+    .kpi span{display:block;color:var(--muted);font-size:.88rem}
+    .grid-2{display:grid;grid-template-columns:1.08fr .92fr;gap:20px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .section-title{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+    .field{display:grid;gap:6px}
+    .field label{font-weight:700;font-size:.86rem;color:var(--muted)}
+    .field input,.field select,.field textarea{padding:11px 12px;border-radius:12px;border:1px solid var(--border);background:var(--bg);transition:.15s ease}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary)}
+    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .list{display:grid;gap:12px}
+    .item{padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--bg)}
+    .table-wrap{overflow:auto}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:13px 12px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+    .table th{font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+    .table tr:last-child td{border-bottom:none}
+    .badge{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;font-size:.78rem;font-weight:800;white-space:nowrap}
+    .badge-active{background:rgba(47,133,90,.12);color:var(--success)}
+    .badge-warn{background:rgba(183,121,31,.14);color:var(--warning)}
+    .badge-muted{background:rgba(104,118,111,.14);color:var(--muted)}
+    .badge-danger{background:rgba(184,50,128,.14);color:var(--danger)}
+    .badge-info{background:rgba(36,95,167,.14);color:var(--info)}
+    .toolbar{display:flex;gap:12px;flex-wrap:wrap}
+    .toolbar .field{min-width:180px;flex:1}
+    .hidden{display:none !important}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{padding:10px 14px;border-radius:999px;border:1px solid var(--border);background:var(--bg);font-weight:700;font-size:.88rem;transition:.15s ease}
+    .tab.active{background:var(--primary);color:#fff;border-color:transparent}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .mini{font-size:.85rem;color:var(--muted);margin-top:3px}
+    .timeline{display:grid;gap:10px}
+    .step{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
+    .step-dot{width:12px;height:12px;border-radius:999px;background:var(--surface-3);margin-top:5px;transition:.15s ease}
+    .step.done .step-dot{background:var(--success)}
+    .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--surface-2);padding:2px 6px;border-radius:8px;font-size:.84rem}
+    .rating-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+    .rating-btn{padding:14px;border:2px solid var(--border);border-radius:12px;background:var(--surface);font-weight:800;transition:.15s ease}
+    .rating-btn:hover{border-color:var(--primary)}
+    .footer-note{font-size:.84rem;color:var(--muted)}
+    .alert{padding:12px 16px;border-radius:12px;font-size:.9rem;font-weight:600;display:flex;align-items:center;gap:10px}
+    .alert-success{background:rgba(47,133,90,.1);color:var(--success);border:1px solid rgba(47,133,90,.2)}
+    .alert-warn{background:rgba(183,121,31,.1);color:var(--warning);border:1px solid rgba(183,121,31,.2)}
+    @media (max-width:1180px){.app,.hero,.grid-2,.two-col{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.kpis{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr}}
+    @media (max-width:760px){.main{padding:16px}.hero-copy,.hero-side,.panel,.kpi{padding:16px}.form-grid,.kpis,.rating-grid{grid-template-columns:1fr}.topbar-actions,.toolbar{width:100%}.topbar-actions .btn,.toolbar .field{flex:1}}
+  </style>
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-label="Flow Reviewer logo">FR</div>
+        <div>
+          <strong>Flow Reviewer</strong>
+          <small>Automated review upsell</small>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Primary navigation">
+        <button class="active" data-view-btn="dashboard" data-testid="nav-dashboard">Dashboard</button>
+        <button data-view-btn="clients" data-testid="nav-clients">Clients</button>
+        <button data-view-btn="automation" data-testid="nav-automation">Onboarding Automations</button>
+        <button data-view-btn="billing" data-testid="nav-billing">Billing</button>
+        <button data-view-btn="reviews" data-testid="nav-reviews">Review Links</button>
+        <button data-view-btn="templates" data-testid="nav-templates">Templates</button>
+      </nav>
+      <div class="sidebar-card">
+        <strong>Separate upsell</strong>
+        <p>Flow Reviewer is offered after onboarding and billed separately from Flow Bookkeeping Services.</p>
+      </div>
+      <div class="sidebar-card">
+        <strong>Core rule</strong>
+        <p>Stripe is the billing source of truth. Flow Reviewer controls access, review-link status, and public review behavior.</p>
+      </div>
+      <div class="sidebar-card" style="margin-top:auto">
+        <strong style="font-size:.82rem">Webhook endpoints</strong>
+        <div class="code" style="margin-top:6px;word-break:break-all">/api/onboarding-trigger</div>
+        <div class="code" style="margin-top:4px;word-break:break-all">/api/stripe-webhook</div>
+      </div>
+    </aside>
+
+    <!-- ── Main content ───────────────────────────────────────────────── -->
+    <main class="main">
+      <section class="topbar">
+        <div>
+          <div class="eyebrow">Flow Bookkeeping Services upsell</div>
+          <h1 id="pageTitle">Flow Reviewer Operations</h1>
+          <p id="pageIntro" style="margin-top:6px">Track onboarding-triggered offers, monthly subscriptions, public review links, and subscription lifecycle status.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary" id="themeToggle" data-testid="theme-toggle" aria-label="Toggle theme">◐ Theme</button>
+          <button class="btn btn-secondary" id="downloadCsvBtn" data-testid="download-csv">Export CSV</button>
+          <button class="btn btn-primary" id="seedBtn" data-testid="seed-demo">Reset demo data</button>
+        </div>
+      </section>
+
+      <!-- Dashboard ───────────────────────────────────────────────────── -->
+      <section id="view-dashboard">
+        <div class="hero">
+          <div class="card hero-copy">
+            <div class="eyebrow">Operations dashboard</div>
+            <h2>Post-onboarding upsell, monthly billing, and review-link control</h2>
+            <p>This app tracks the full Flow Reviewer lifecycle: onboarding completion → offer eligibility → Stripe subscription states → paid-through access → cancellation scheduling → expired link behavior.</p>
+            <div class="toolbar" style="margin-top:8px">
+              <div class="field">
+                <label for="dashboardStatusFilter">Status filter</label>
+                <select id="dashboardStatusFilter" data-testid="dashboard-status-filter"></select>
+              </div>
+              <div class="field">
+                <label for="dashboardSearch">Search client</label>
+                <input id="dashboardSearch" data-testid="dashboard-search" placeholder="Name, email, or sector" />
+              </div>
+            </div>
+          </div>
+          <div class="card hero-side">
+            <div class="eyebrow">Deployment status</div>
+            <h3 style="margin-top:6px">Phase 1 — Static app live</h3>
+            <div class="progress"><span id="deployProgress" style="width:25%"></span></div>
+            <p id="deployNote">Phase 1 complete: static app deployed. Connect Zapier + Stripe webhooks to activate live data flow. Phase 2 adds database persistence.</p>
+            <div id="webhookStatusBanner"></div>
+          </div>
+        </div>
+
+        <section class="kpis" style="margin-top:4px">
+          <div class="card kpi"><span>Active subscriptions</span><strong id="kpiActive">0</strong></div>
+          <div class="card kpi"><span>Cancel scheduled</span><strong id="kpiCancelScheduled">0</strong></div>
+          <div class="card kpi"><span>Past due</span><strong id="kpiPastDue">0</strong></div>
+          <div class="card kpi"><span>Monthly recurring revenue</span><strong id="kpiMrr">$0</strong></div>
+          <div class="card kpi"><span>Offer conversion</span><strong id="kpiConversion">0%</strong></div>
+        </section>
+
+        <section class="grid-2" style="margin-top:4px">
+          <div class="card panel">
+            <div class="section-title">
+              <div>
+                <div class="eyebrow">Client pipeline</div>
+                <h2>Subscriptions and onboarding progress</h2>
+              </div>
+            </div>
+            <div class="table-wrap" style="margin-top:14px">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Client</th>
+                    <th>Onboarding</th>
+                    <th>Subscription</th>
+                    <th>Paid through</th>
+                    <th>Review link</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="clientTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card panel">
+            <div class="eyebrow">Activity feed</div>
+            <h2 style="margin-top:6px">Recent automation and billing events</h2>
+            <div class="list" id="activityList" style="margin-top:14px"></div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Clients ─────────────────────────────────────────────────────── -->
+      <section id="view-clients" class="hidden">
+        <div class="grid-2">
+          <div class="card panel">
+            <div class="section-title">
+              <div>
+                <div class="eyebrow">Client detail</div>
+                <h2 id="clientDetailTitle">Select a client</h2>
+              </div>
+              <div class="tabs">
+                <button class="tab active" data-client-tab="overview">Overview</button>
+                <button class="tab" data-client-tab="edit">Edit</button>
+              </div>
+            </div>
+            <div id="clientDetailContent" style="margin-top:16px"></div>
+          </div>
+          <div class="card panel">
+            <div class="eyebrow">Add client</div>
+            <h2 style="margin-top:6px">New Flow Reviewer client</h2>
+            <form id="addClientForm" style="margin-top:14px;display:grid;gap:14px">
+              <div class="form-grid">
+                <div class="field"><label for="newClientName">Business name</label><input id="newClientName" required data-testid="new-client-name" /></div>
+                <div class="field"><label for="newClientEmail">Contact email</label><input id="newClientEmail" type="email" required data-testid="new-client-email" /></div>
+                <div class="field"><label for="newClientSector">Service sector</label><input id="newClientSector" placeholder="HVAC, Plumbing, Electrical" /></div>
+                <div class="field"><label for="newOnboardingStatus">Onboarding status</label>
+                  <select id="newOnboardingStatus">
+                    <option>Completed</option><option>In Progress</option><option>Not Started</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <button class="btn btn-primary" type="submit" data-testid="submit-new-client">Add client</button>
+                <button class="btn btn-secondary" type="reset">Reset</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Automation ──────────────────────────────────────────────────── -->
+      <section id="view-automation" class="hidden">
+        <div class="grid-2">
+          <div class="card panel">
+            <div class="eyebrow">Onboarding trigger</div>
+            <h2 style="margin-top:6px">Automation settings</h2>
+            <form id="automationForm" style="margin-top:14px;display:grid;gap:14px">
+              <div class="form-grid">
+                <div class="field"><label for="fcTriggerLabel">Trigger source</label><input id="fcTriggerLabel" data-testid="fc-trigger-label"></div>
+                <div class="field"><label for="fcStepName">Step or status name</label><input id="fcStepName" data-testid="fc-step-name"></div>
+                <div class="field"><label for="zapierWebhookUrl">Zapier webhook URL</label><input id="zapierWebhookUrl" data-testid="zapier-webhook-url"></div>
+                <div class="field"><label for="sharedSecret">Shared secret</label><input id="sharedSecret" data-testid="shared-secret"></div>
+                <div class="field"><label for="offerChannel">Default offer channel</label>
+                  <select id="offerChannel" data-testid="offer-channel"><option>Email</option><option>SMS</option><option>Both</option></select>
+                </div>
+                <div class="field"><label for="offerDelay">Offer delay</label>
+                  <select id="offerDelay" data-testid="offer-delay"><option>Immediate</option><option>1 day</option><option>3 days</option></select>
+                </div>
+                <div class="field"><label for="stripeCheckoutUrl">Stripe checkout link</label><input id="stripeCheckoutUrl" data-testid="stripe-checkout-url"></div>
+                <div class="field"><label for="monthlyPrice">Monthly price</label><input id="monthlyPrice" data-testid="monthly-price"></div>
+              </div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <button class="btn btn-primary" type="submit" data-testid="save-automation-settings">Save settings</button>
+                <button class="btn btn-secondary" type="button" id="sendTestTriggerBtn" data-testid="send-test-trigger">Send test trigger</button>
+              </div>
+            </form>
+          </div>
+          <div class="card panel">
+            <div class="eyebrow">Setup checklist</div>
+            <h2 style="margin-top:6px">Zapier and Financial Cents handoff</h2>
+            <div class="list" style="margin-top:14px">
+              <div class="item">1. Mark onboarding complete in Financial Cents, then use Zapier or a webhook step to call <span class="code">POST /api/onboarding-trigger</span>.</div>
+              <div class="item">2. Pass client name, email, phone, onboarding completion time, Financial Cents client ID, and service type.</div>
+              <div class="item">3. Include the shared secret header <span class="code">x-flow-reviewer-secret</span> and the event type <span class="code">onboarding_completed</span>.</div>
+              <div class="item">4. Send the client to the Stripe checkout link as a separate optional monthly subscription.</div>
+              <div class="item">5. On Stripe payment success, the webhook at <span class="code">/api/stripe-webhook</span> activates the client and sets the paid-through date.</div>
+            </div>
+            <div class="item" style="margin-top:14px">
+              <strong>Sample payload</strong>
+              <pre style="white-space:pre-wrap;overflow:auto;margin:10px 0 0;color:var(--muted);font-size:.82rem">{
+  "client_name": "Acme Plumbing",
+  "client_email": "owner@acmeplumbing.com",
+  "client_phone": "+1-555-111-2222",
+  "onboarding_completed_at": "2026-05-24T13:00:00Z",
+  "financial_cents_client_id": "fc_12345",
+  "service_type": "Bookkeeping",
+  "event_type": "onboarding_completed"
+}</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Billing ─────────────────────────────────────────────────────── -->
+      <section id="view-billing" class="hidden">
+        <div class="grid-2">
+          <div class="card panel">
+            <div class="eyebrow">Billing states</div>
+            <h2 style="margin-top:6px">Subscription controls</h2>
+            <div id="billingControls" class="list" style="margin-top:14px"></div>
+          </div>
+          <div class="card panel">
+            <div class="eyebrow">Webhook log</div>
+            <h2 style="margin-top:6px">Stripe-style billing events</h2>
+            <div id="webhookLog" class="list" style="margin-top:14px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Review Links ────────────────────────────────────────────────── -->
+      <section id="view-reviews" class="hidden">
+        <div class="grid-2">
+          <div class="card panel">
+            <div class="eyebrow">Public review simulation</div>
+            <h2 style="margin-top:6px">Review link checker</h2>
+            <div class="field" style="margin-top:14px">
+              <label for="publicClientSelect">Choose client</label>
+              <select id="publicClientSelect" data-testid="public-client-select"></select>
+            </div>
+            <div id="publicReviewMount" style="margin-top:16px"></div>
+          </div>
+          <div class="card panel">
+            <div class="eyebrow">Business setup</div>
+            <h2 style="margin-top:6px">Review page configuration</h2>
+            <form id="businessSetupForm" style="margin-top:14px;display:grid;gap:14px">
+              <div class="form-grid">
+                <div class="field"><label for="setupBusinessName">Business name</label><input id="setupBusinessName" data-testid="setup-business-name"></div>
+                <div class="field"><label for="setupSector">Service sector</label><input id="setupSector" data-testid="setup-sector"></div>
+                <div class="field"><label for="setupSlug">Review slug</label><input id="setupSlug" data-testid="setup-slug"></div>
+                <div class="field"><label for="setupTone">Tone</label>
+                  <select id="setupTone" data-testid="setup-tone"><option>Helpful</option><option>Warm</option><option>Direct</option></select>
+                </div>
+                <div class="field"><label for="setupGoogle">Google review URL</label><input id="setupGoogle" data-testid="setup-google"></div>
+                <div class="field"><label for="setupPrivateEmail">Private feedback email</label><input id="setupPrivateEmail" data-testid="setup-private-email"></div>
+              </div>
+              <button class="btn btn-primary" type="submit" data-testid="save-business-setup">Save business setup</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Templates ───────────────────────────────────────────────────── -->
+      <section id="view-templates" class="hidden">
+        <div class="grid-2">
+          <div class="card panel">
+            <div class="eyebrow">Email template</div>
+            <h2 style="margin-top:6px">Post-onboarding upsell email</h2>
+            <div class="item" style="margin-top:14px;display:grid;gap:10px">
+              <div><strong>Subject:</strong> Activate Flow Reviewer for your business</div>
+              <div style="border-top:1px solid var(--border);padding-top:12px;display:grid;gap:8px">
+                <p>Hello [Client First Name],</p>
+                <p>Now that your onboarding with Flow Bookkeeping Services is complete, you have the option to add Flow Reviewer for $49/month as a separate subscription. Flow Reviewer helps your business request reviews or private feedback from your customers after completed jobs.</p>
+                <p>Activate here: <span class="code">[Stripe Subscription Link]</span></p>
+                <p>This subscription is optional and billed separately from bookkeeping services.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card panel">
+            <div class="eyebrow">SMS template</div>
+            <h2 style="margin-top:6px">Post-onboarding upsell text</h2>
+            <div class="item" style="margin-top:14px">
+              <p>Hi [First Name], your onboarding with Flow Bookkeeping Services is complete. You can now activate Flow Reviewer for $49/month as a separate optional subscription to help you request reviews from your customers after completed jobs: <span class="code">[Stripe Subscription Link]</span>.</p>
+            </div>
+            <div class="item" style="margin-top:14px">
+              <strong>Routing rule</strong>
+              <p style="margin-top:8px">Ratings of 4–5 stars → redirect to Google review URL. Ratings of 1–3 stars → route feedback privately to the configured email address.</p>
+            </div>
+            <div class="item" style="margin-top:14px">
+              <strong>Implementation note</strong>
+              <p style="margin-top:8px">Connect email delivery via Resend or SendGrid. Connect SMS via Twilio. Both can be triggered from the Zapier workflow or from the <span class="code">/api/onboarding-trigger</span> serverless function in Phase 2.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────────
+    const today = new Date();
+    const appState = {
+      selectedView: 'dashboard',
+      selectedClientId: 'c1',
+      selectedClientTab: 'overview',
+      publicClientId: 'c1',
+      dashboardStatus: 'All',
+      dashboardSearch: '',
+      automation: {
+        triggerLabel: 'Financial Cents onboarding completed',
+        stepName: 'onboarding_completed',
+        webhookUrl: 'https://hooks.zapier.com/hooks/catch/YOUR_ID/flow-reviewer',
+        sharedSecret: '',
+        offerChannel: 'Email',
+        offerDelay: 'Immediate',
+        stripeCheckoutUrl: 'https://buy.stripe.com/YOUR_CHECKOUT_LINK',
+        monthlyPrice: '$49/month'
+      },
+      clients: [],
+      activities: [],
+      webhookEvents: [],
+      submissions: []
+    };
+
+    function daysFromNow(days) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0, 10);
+    }
+
+    // ── Seed data ──────────────────────────────────────────────────────────
+    function seedData() {
+      appState.clients = [
+        {
+          id:'c1', name:'Acme Plumbing', email:'owner@acmeplumbing.com', phone:'+1-555-111-2222', sector:'Plumbing',
+          onboardingStatus:'Completed', onboardingCompletedAt: daysFromNow(-4), financialCentsId:'fc_12345',
+          offerEligible:true, offerSentAt:daysFromNow(-4), offerChannel:'Email', offerStatus:'Sent',
+          activationSource:'Post-onboarding upsell', activationStartedAt:daysFromNow(-3),
+          stripeCustomerId:'cus_Acme001', stripeSubscriptionId:'sub_Acme001',
+          subscriptionStatus:'Active', monthlyAmount:49, billingStartDate:daysFromNow(-3),
+          paidThroughDate:daysFromNow(17), cancelScheduledAt:'', cancellationDate:'',
+          reviewLinkStatus:'Active', reviewLinkUrl:'/review/acme-plumbing',
+          businessSetup:{businessName:'Acme Plumbing',sector:'Plumbing',slug:'acme-plumbing',tone:'Helpful',googleUrl:'https://google.com/review/acme',privateEmail:'feedback@acmeplumbing.com'},
+          billingHistory:[
+            {date:daysFromNow(-3), type:'checkout.session.completed', note:'Initial subscription created'},
+            {date:daysFromNow(-3), type:'invoice.paid', note:'First monthly payment collected'}
+          ],
+          onboardingTimeline:[['Proposal accepted',true],['Client onboarded in Financial Cents',true],['Flow Reviewer offer sent',true],['Subscription activated',true]]
+        },
+        {
+          id:'c2', name:'Summit HVAC', email:'ops@summithvac.com', phone:'+1-555-222-3333', sector:'HVAC',
+          onboardingStatus:'Completed', onboardingCompletedAt:daysFromNow(-8), financialCentsId:'fc_22345',
+          offerEligible:true, offerSentAt:daysFromNow(-7), offerChannel:'SMS', offerStatus:'Sent',
+          activationSource:'Post-onboarding upsell', activationStartedAt:daysFromNow(-6),
+          stripeCustomerId:'cus_Hvac002', stripeSubscriptionId:'sub_Hvac002',
+          subscriptionStatus:'Cancel Scheduled', monthlyAmount:49, billingStartDate:daysFromNow(-36),
+          paidThroughDate:daysFromNow(6), cancelScheduledAt:daysFromNow(-1), cancellationDate:'',
+          reviewLinkStatus:'Active until end of term', reviewLinkUrl:'/review/summit-hvac',
+          businessSetup:{businessName:'Summit HVAC',sector:'HVAC',slug:'summit-hvac',tone:'Warm',googleUrl:'https://google.com/review/summit',privateEmail:'owner@summithvac.com'},
+          billingHistory:[
+            {date:daysFromNow(-36), type:'invoice.paid', note:'Monthly renewal succeeded'},
+            {date:daysFromNow(-1), type:'customer.subscription.updated', note:'Cancellation scheduled at period end'}
+          ],
+          onboardingTimeline:[['Proposal accepted',true],['Client onboarded in Financial Cents',true],['Flow Reviewer offer sent',true],['Subscription activated',true]]
+        },
+        {
+          id:'c3', name:'Harbor Electric', email:'admin@harborelectric.com', phone:'+1-555-444-0000', sector:'Electrical',
+          onboardingStatus:'Completed', onboardingCompletedAt:daysFromNow(-14), financialCentsId:'fc_32345',
+          offerEligible:true, offerSentAt:daysFromNow(-13), offerChannel:'Both', offerStatus:'Sent',
+          activationSource:'Post-onboarding upsell', activationStartedAt:daysFromNow(-12),
+          stripeCustomerId:'cus_Elec003', stripeSubscriptionId:'sub_Elec003',
+          subscriptionStatus:'Past Due', monthlyAmount:49, billingStartDate:daysFromNow(-42),
+          paidThroughDate:daysFromNow(2), cancelScheduledAt:'', cancellationDate:'',
+          reviewLinkStatus:'Grace period', reviewLinkUrl:'/review/harbor-electric',
+          businessSetup:{businessName:'Harbor Electric',sector:'Electrical',slug:'harbor-electric',tone:'Direct',googleUrl:'https://google.com/review/harbor',privateEmail:'service@harborelectric.com'},
+          billingHistory:[
+            {date:daysFromNow(-12), type:'invoice.paid', note:'Subscription renewed'},
+            {date:daysFromNow(-2), type:'invoice.payment_failed', note:'Renewal attempt failed, grace period started'}
+          ],
+          onboardingTimeline:[['Proposal accepted',true],['Client onboarded in Financial Cents',true],['Flow Reviewer offer sent',true],['Subscription activated',true]]
+        },
+        {
+          id:'c4', name:'Blue Tide Roofing', email:'billing@bluetideroofing.com', phone:'+1-555-777-1212', sector:'Roofing',
+          onboardingStatus:'Completed', onboardingCompletedAt:daysFromNow(-51), financialCentsId:'fc_42345',
+          offerEligible:true, offerSentAt:daysFromNow(-50), offerChannel:'Email', offerStatus:'Sent',
+          activationSource:'Post-onboarding upsell', activationStartedAt:daysFromNow(-49),
+          stripeCustomerId:'cus_Roof004', stripeSubscriptionId:'sub_Roof004',
+          subscriptionStatus:'Expired', monthlyAmount:49, billingStartDate:daysFromNow(-79),
+          paidThroughDate:daysFromNow(-23), cancelScheduledAt:daysFromNow(-29), cancellationDate:daysFromNow(-23),
+          reviewLinkStatus:'Inactive', reviewLinkUrl:'/review/blue-tide-roofing',
+          businessSetup:{businessName:'Blue Tide Roofing',sector:'Roofing',slug:'blue-tide-roofing',tone:'Helpful',googleUrl:'https://google.com/review/bluetide',privateEmail:'service@bluetideroofing.com'},
+          billingHistory:[
+            {date:daysFromNow(-49), type:'invoice.paid', note:'Subscription renewed'},
+            {date:daysFromNow(-29), type:'customer.subscription.deleted', note:'Subscription ended at period close'}
+          ],
+          onboardingTimeline:[['Proposal accepted',true],['Client onboarded in Financial Cents',true],['Flow Reviewer offer sent',true],['Subscription activated',true]]
+        },
+        {
+          id:'c5', name:'Palmetto Landscaping', email:'team@palmettolandscaping.com', phone:'+1-555-888-0001', sector:'Landscaping',
+          onboardingStatus:'Completed', onboardingCompletedAt:today.toISOString().slice(0,10), financialCentsId:'fc_52345',
+          offerEligible:true, offerSentAt:'', offerChannel:'Email', offerStatus:'Queued',
+          activationSource:'', activationStartedAt:'',
+          stripeCustomerId:'', stripeSubscriptionId:'',
+          subscriptionStatus:'Not Subscribed', monthlyAmount:49, billingStartDate:'', paidThroughDate:'',
+          cancelScheduledAt:'', cancellationDate:'', reviewLinkStatus:'Not active', reviewLinkUrl:'/review/palmetto-landscaping',
+          businessSetup:{businessName:'Palmetto Landscaping',sector:'Landscaping',slug:'palmetto-landscaping',tone:'Warm',googleUrl:'https://google.com/review/palmetto',privateEmail:'hello@palmettolandscaping.com'},
+          billingHistory:[],
+          onboardingTimeline:[['Proposal accepted',true],['Client onboarded in Financial Cents',true],['Flow Reviewer offer sent',false],['Subscription activated',false]]
+        }
+      ];
+
+      appState.activities = [
+        {time: fmtTime(today), text: 'Financial Cents onboarding completed for Palmetto Landscaping; Flow Reviewer offer queued.'},
+        {time: fmtTime(new Date(today.getTime() - 86400000)), text: 'Summit HVAC scheduled cancellation; access remains live through paid-through date.'},
+        {time: fmtTime(new Date(today.getTime() - 2 * 86400000)), text: 'Harbor Electric renewal payment failed; moved to Past Due with grace-period review-link access.'},
+        {time: fmtTime(new Date(today.getTime() - 3 * 86400000)), text: 'Acme Plumbing completed checkout and Flow Reviewer was activated.'}
+      ];
+
+      appState.webhookEvents = [
+        {time: fmtTime(new Date(today.getTime() - 86400000)), type:'customer.subscription.updated', client:'Summit HVAC', status:'Processed', note:'Cancel at period end'},
+        {time: fmtTime(new Date(today.getTime() - 2 * 86400000)), type:'invoice.payment_failed', client:'Harbor Electric', status:'Processed', note:'Past Due'},
+        {time: fmtTime(new Date(today.getTime() - 3 * 86400000)), type:'checkout.session.completed', client:'Acme Plumbing', status:'Processed', note:'Created client and activated subscription'},
+        {time: fmtTime(new Date(today.getTime() - 3 * 86400000)), type:'invoice.paid', client:'Acme Plumbing', status:'Processed', note:'Set paid-through date'}
+      ];
+
+      appState.submissions = [
+        {clientId:'c1', rating:5, customer:'Jamie Reed', type:'Public review', note:'Fast service and clean install.'},
+        {clientId:'c2', rating:4, customer:'Tonya Mills', type:'Public review', note:'Very professional and polite.'},
+        {clientId:'c3', rating:2, customer:'Chris Lane', type:'Private feedback', note:'Wanted clearer pricing before the work started.'}
+      ];
+
+      appState.selectedClientId = 'c1';
+      appState.publicClientId = 'c1';
+    }
+
+    function fmtTime(d) {
+      return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) +
+        ' ' + d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+    function badgeClass(status) {
+      if (['Active','Processed','Public review','Completed'].includes(status)) return 'badge-active';
+      if (['Cancel Scheduled','Queued','Grace period','Active until end of term'].includes(status)) return 'badge-warn';
+      if (['Past Due'].includes(status)) return 'badge-info';
+      if (['Expired','Inactive','Rejected'].includes(status)) return 'badge-danger';
+      return 'badge-muted';
+    }
+
+    function fmt(date) { return date || '—'; }
+    function getClient(id) { return appState.clients.find(c => c.id === id); }
+
+    function calculateMetrics(clients) {
+      const active = clients.filter(c => c.subscriptionStatus === 'Active').length;
+      const cancel = clients.filter(c => c.subscriptionStatus === 'Cancel Scheduled').length;
+      const pastDue = clients.filter(c => c.subscriptionStatus === 'Past Due').length;
+      const mrr = clients.filter(c => ['Active','Cancel Scheduled','Past Due'].includes(c.subscriptionStatus)).reduce((s,c) => s + c.monthlyAmount, 0);
+      const eligible = clients.filter(c => c.offerEligible).length || 1;
+      const converted = clients.filter(c => ['Active','Cancel Scheduled','Past Due','Expired'].includes(c.subscriptionStatus)).length;
+      return {active, cancel, pastDue, mrr, conversion: Math.round((converted / eligible) * 100)};
+    }
+
+    function filteredClients() {
+      return appState.clients.filter(c => {
+        const matchStatus = appState.dashboardStatus === 'All' || c.subscriptionStatus === appState.dashboardStatus;
+        const q = appState.dashboardSearch.trim().toLowerCase();
+        const matchSearch = !q || [c.name, c.email, c.sector].join(' ').toLowerCase().includes(q);
+        return matchStatus && matchSearch;
+      });
+    }
+
+    // ── Render functions ───────────────────────────────────────────────────
+    function renderNav() {
+      document.querySelectorAll('[data-view-btn]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.viewBtn === appState.selectedView);
+      });
+      document.querySelectorAll('[id^="view-"]').forEach(s => s.classList.add('hidden'));
+      document.getElementById(`view-${appState.selectedView}`).classList.remove('hidden');
+    }
+
+    function renderDashboard() {
+      const clients = filteredClients();
+      const m = calculateMetrics(clients);
+      document.getElementById('kpiActive').textContent = m.active;
+      document.getElementById('kpiCancelScheduled').textContent = m.cancel;
+      document.getElementById('kpiPastDue').textContent = m.pastDue;
+      document.getElementById('kpiMrr').textContent = `$${m.mrr}`;
+      document.getElementById('kpiConversion').textContent = `${m.conversion}%`;
+
+      document.getElementById('clientTableBody').innerHTML = clients.map(c => `
+        <tr>
+          <td><strong>${c.name}</strong><div class="mini">${c.email}<br>${c.sector}</div></td>
+          <td><span class="badge ${badgeClass(c.onboardingStatus === 'Completed' ? 'Active' : 'Queued')}">${c.onboardingStatus}</span><div class="mini">${fmt(c.onboardingCompletedAt)}</div></td>
+          <td><span class="badge ${badgeClass(c.subscriptionStatus)}">${c.subscriptionStatus}</span><div class="mini">$${c.monthlyAmount}/mo</div></td>
+          <td>${fmt(c.paidThroughDate)}</td>
+          <td><span class="badge ${badgeClass(c.reviewLinkStatus.includes('Inactive') || c.reviewLinkStatus === 'Not active' ? 'Inactive' : c.reviewLinkStatus.includes('Grace') ? 'Past Due' : 'Active')}">${c.reviewLinkStatus}</span></td>
+          <td><button class="btn btn-secondary open-client" data-client-id="${c.id}" style="padding:8px 12px;font-size:.82rem">Open</button></td>
+        </tr>`).join('');
+
+      document.getElementById('activityList').innerHTML = appState.activities.map(a =>
+        `<div class="item"><strong style="font-size:.84rem">${a.time}</strong><p style="margin-top:6px">${a.text}</p></div>`
+      ).join('');
+    }
+
+    function renderClientDetail() {
+      const client = getClient(appState.selectedClientId);
+      document.getElementById('clientDetailTitle').textContent = client ? client.name : 'Select a client';
+      document.querySelectorAll('[data-client-tab]').forEach(tab =>
+        tab.classList.toggle('active', tab.dataset.clientTab === appState.selectedClientTab)
+      );
+      if (!client) { document.getElementById('clientDetailContent').innerHTML = '<p>No client selected. Click Open on any row in the Dashboard.</p>'; return; }
+
+      if (appState.selectedClientTab === 'overview') {
+        document.getElementById('clientDetailContent').innerHTML = `
+          <div class="two-col">
+            <div class="item">
+              <div class="eyebrow">Billing and Stripe</div>
+              <h3 style="margin-top:8px">Subscription dashboard</h3>
+              <div class="list" style="margin-top:14px">
+                <div><strong>Status:</strong> <span class="badge ${badgeClass(client.subscriptionStatus)}">${client.subscriptionStatus}</span></div>
+                <div><strong>Stripe customer:</strong> <span class="code">${client.stripeCustomerId || 'Not assigned'}</span></div>
+                <div><strong>Stripe subscription:</strong> <span class="code">${client.stripeSubscriptionId || 'Not assigned'}</span></div>
+                <div><strong>Paid through:</strong> ${fmt(client.paidThroughDate)}</div>
+                <div><strong>Monthly price:</strong> $${client.monthlyAmount}/month</div>
+                <div><strong>Review link:</strong> ${client.reviewLinkStatus}</div>
+              </div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">
+                <button class="btn btn-secondary" id="syncSubscriptionBtn">Sync subscription</button>
+                <button class="btn btn-danger" id="cancelSubscriptionBtn">Schedule cancellation</button>
+              </div>
+            </div>
+            <div class="item">
+              <div class="eyebrow">Onboarding</div>
+              <h3 style="margin-top:8px">Progress timeline</h3>
+              <div class="timeline" style="margin-top:14px">
+                ${client.onboardingTimeline.map(([label, done]) =>
+                  `<div class="step ${done ? 'done' : ''}"><div class="step-dot"></div><div><strong>${label}</strong><div class="mini">${done ? 'Completed' : 'Pending'}</div></div></div>`
+                ).join('')}
+              </div>
+              <div class="list" style="margin-top:16px">
+                <div><strong>Onboarding completed:</strong> ${fmt(client.onboardingCompletedAt)}</div>
+                <div><strong>Offer status:</strong> ${client.offerStatus || 'Not sent'}</div>
+                <div><strong>Offer sent at:</strong> ${fmt(client.offerSentAt)}</div>
+                <div><strong>Activation source:</strong> ${client.activationSource || '—'}</div>
+              </div>
+            </div>
+          </div>
+          <div class="item" style="margin-top:16px">
+            <strong>Billing history</strong>
+            <div class="list" style="margin-top:12px">${client.billingHistory.length
+              ? client.billingHistory.map(h => `<div><span class="code">${h.type}</span> · ${h.date}<div class="mini">${h.note}</div></div>`).join('')
+              : '<p>No billing history yet.</p>'
+            }</div>
+          </div>`;
+
+        document.getElementById('syncSubscriptionBtn').onclick = () => {
+          logWebhook('manual.subscription.sync', client.name, 'Processed', 'Admin-triggered subscription sync');
+          logActivity(`Subscription sync run for ${client.name}.`);
+          renderAll();
+        };
+        document.getElementById('cancelSubscriptionBtn').onclick = () => {
+          if (['Active','Past Due'].includes(client.subscriptionStatus)) {
+            client.subscriptionStatus = 'Cancel Scheduled';
+            client.cancelScheduledAt = today.toISOString().slice(0,10);
+            client.reviewLinkStatus = 'Active until end of term';
+            client.billingHistory.unshift({date: today.toISOString().slice(0,10), type:'customer.subscription.updated', note:'Cancellation scheduled from client dashboard'});
+            logWebhook('customer.subscription.updated', client.name, 'Processed', 'Cancellation scheduled');
+            logActivity(`${client.name} cancellation scheduled; access remains active until ${client.paidThroughDate || 'period end'}.`);
+            renderAll();
+          }
+        };
+      } else {
+        document.getElementById('clientDetailContent').innerHTML = `
+          <form id="editClientForm" style="display:grid;gap:14px">
+            <div class="form-grid">
+              <div class="field"><label>Business name</label><input id="editClientName" value="${client.name}"></div>
+              <div class="field"><label>Email</label><input id="editClientEmail" value="${client.email}"></div>
+              <div class="field"><label>Subscription status</label>
+                <select id="editClientStatus">${['Not Subscribed','Active','Cancel Scheduled','Past Due','Expired','Inactive'].map(s =>
+                  `<option ${client.subscriptionStatus===s?'selected':''}>${s}</option>`).join('')}</select>
+              </div>
+              <div class="field"><label>Paid through</label><input id="editPaidThrough" value="${client.paidThroughDate}"></div>
+              <div class="field"><label>Review link status</label><input id="editReviewLinkStatus" value="${client.reviewLinkStatus}"></div>
+              <div class="field"><label>Stripe customer ID</label><input id="editStripeCustomer" value="${client.stripeCustomerId}"></div>
+            </div>
+            <button class="btn btn-primary" type="submit">Save client details</button>
+          </form>`;
+
+        document.getElementById('editClientForm').addEventListener('submit', e => {
+          e.preventDefault();
+          client.name = document.getElementById('editClientName').value.trim();
+          client.email = document.getElementById('editClientEmail').value.trim();
+          client.subscriptionStatus = document.getElementById('editClientStatus').value;
+          client.paidThroughDate = document.getElementById('editPaidThrough').value.trim();
+          client.reviewLinkStatus = document.getElementById('editReviewLinkStatus').value.trim();
+          client.stripeCustomerId = document.getElementById('editStripeCustomer').value.trim();
+          logActivity(`Client record updated for ${client.name}.`);
+          renderAll();
+        });
+      }
+    }
+
+    function renderAutomation() {
+      document.getElementById('fcTriggerLabel').value = appState.automation.triggerLabel;
+      document.getElementById('fcStepName').value = appState.automation.stepName;
+      document.getElementById('zapierWebhookUrl').value = appState.automation.webhookUrl;
+      document.getElementById('sharedSecret').value = appState.automation.sharedSecret;
+      document.getElementById('offerChannel').value = appState.automation.offerChannel;
+      document.getElementById('offerDelay').value = appState.automation.offerDelay;
+      document.getElementById('stripeCheckoutUrl').value = appState.automation.stripeCheckoutUrl;
+      document.getElementById('monthlyPrice').value = appState.automation.monthlyPrice;
+    }
+
+    function renderBilling() {
+      document.getElementById('billingControls').innerHTML = appState.clients.map(client => `
+        <div class="item">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+            <div><strong>${client.name}</strong><div class="mini">${client.email}</div></div>
+            <span class="badge ${badgeClass(client.subscriptionStatus)}">${client.subscriptionStatus}</span>
+          </div>
+          <div class="mini" style="margin-top:8px">Paid through: ${fmt(client.paidThroughDate)} · Review link: ${client.reviewLinkStatus}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+            <button class="btn btn-secondary billing-action" data-action="invoice-paid" data-client-id="${client.id}" style="font-size:.82rem;padding:8px 12px">Simulate invoice paid</button>
+            <button class="btn btn-secondary billing-action" data-action="payment-failed" data-client-id="${client.id}" style="font-size:.82rem;padding:8px 12px">Simulate payment failed</button>
+            <button class="btn btn-secondary billing-action" data-action="expire" data-client-id="${client.id}" style="font-size:.82rem;padding:8px 12px">Expire now</button>
+          </div>
+        </div>`).join('');
+
+      document.getElementById('webhookLog').innerHTML = appState.webhookEvents.map(e => `
+        <div class="item">
+          <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <strong style="font-size:.88rem">${e.type}</strong>
+            <span class="badge ${badgeClass(e.status)}">${e.status}</span>
+          </div>
+          <div class="mini" style="margin-top:6px">${e.time} · ${e.client}</div>
+          <p style="margin-top:6px">${e.note}</p>
+        </div>`).join('');
+    }
+
+    function reviewState(client) {
+      if (!client) return {mode:'inactive', message:'No client selected.'};
+      const paid = client.paidThroughDate ? new Date(client.paidThroughDate) >= today : false;
+      if (['Active','Cancel Scheduled'].includes(client.subscriptionStatus) && paid) return {mode:'live'};
+      if (client.subscriptionStatus === 'Past Due' && paid) return {mode:'pastdue'};
+      return {mode:'inactive', message:'This review link is currently inactive because the subscription is no longer active or has expired.'};
+    }
+
+    function renderPublicReview() {
+      const select = document.getElementById('publicClientSelect');
+      select.innerHTML = appState.clients.map(c =>
+        `<option value="${c.id}" ${c.id===appState.publicClientId?'selected':''}>${c.name}</option>`
+      ).join('');
+
+      const client = getClient(appState.publicClientId);
+      if (client) {
+        document.getElementById('setupBusinessName').value = client.businessSetup.businessName;
+        document.getElementById('setupSector').value = client.businessSetup.sector;
+        document.getElementById('setupSlug').value = client.businessSetup.slug;
+        document.getElementById('setupTone').value = client.businessSetup.tone;
+        document.getElementById('setupGoogle').value = client.businessSetup.googleUrl;
+        document.getElementById('setupPrivateEmail').value = client.businessSetup.privateEmail;
+      }
+
+      const mount = document.getElementById('publicReviewMount');
+      const state = reviewState(client);
+
+      if (state.mode === 'inactive') {
+        mount.innerHTML = `
+          <div class="card panel">
+            <div class="eyebrow">Review link inactive</div>
+            <h3 style="margin-top:8px">${client ? client.businessSetup.businessName : 'Client'}</h3>
+            <p style="margin-top:10px">${state.message}</p>
+            <div class="alert alert-warn" style="margin-top:14px">After the paid-through date, the public review page shows this message instead of a live review form.</div>
+          </div>`;
+        return;
+      }
+
+      const graceNote = state.mode === 'pastdue'
+        ? `<div class="alert alert-warn" style="margin-top:12px">Past Due — review link is in grace period. Access will end on ${client.paidThroughDate}.</div>`
+        : '';
+
+      mount.innerHTML = `
+        <div class="card panel">
+          <div class="eyebrow">Public review page</div>
+          <h3 style="margin-top:8px">${client.businessSetup.businessName}</h3>
+          <p style="margin-top:10px">How was your recent ${client.businessSetup.sector.toLowerCase()} service experience?</p>
+          <div class="rating-grid" style="margin-top:16px">
+            ${[1,2,3,4,5].map(n => `<button class="rating-btn" data-rating="${n}">${n}★</button>`).join('')}
+          </div>
+          <div class="field" style="margin-top:16px"><label>Your name</label><input id="publicName" placeholder="Customer name" /></div>
+          <div class="field" style="margin-top:10px"><label>Feedback</label><textarea id="publicFeedback" rows="4" placeholder="Tell us about your experience"></textarea></div>
+          <button class="btn btn-primary" style="margin-top:14px" id="submitPublicReview">Submit review</button>
+          ${graceNote}
+          <p class="footer-note" style="margin-top:12px">Ratings of 4–5 → public review intent. Ratings of 1–3 → private feedback routing.</p>
+        </div>`;
+
+      let selectedRating = 5;
+      mount.querySelectorAll('[data-rating]').forEach(btn => btn.addEventListener('click', () => {
+        selectedRating = Number(btn.dataset.rating);
+        mount.querySelectorAll('[data-rating]').forEach(b => b.style.borderColor = 'var(--border)');
+        btn.style.borderColor = 'var(--primary)';
+      }));
+      mount.querySelector('#submitPublicReview').addEventListener('click', () => {
+        const customer = document.getElementById('publicName').value.trim() || 'Anonymous customer';
+        const note = document.getElementById('publicFeedback').value.trim() || 'No written comment provided.';
+        const type = selectedRating >= 4 ? 'Public review' : 'Private feedback';
+        appState.submissions.unshift({clientId:client.id, rating:selectedRating, customer, type, note});
+        logActivity(`${type} submitted for ${client.name} by ${customer}.`);
+        alert(selectedRating >= 4
+          ? `Redirect customer to: ${client.businessSetup.googleUrl}`
+          : `Route privately to: ${client.businessSetup.privateEmail}`);
+      });
+    }
+
+    function renderStatusFilter() {
+      const statuses = ['All','Not Subscribed','Active','Cancel Scheduled','Past Due','Expired'];
+      document.getElementById('dashboardStatusFilter').innerHTML = statuses.map(s =>
+        `<option ${appState.dashboardStatus===s?'selected':''}>${s}</option>`
+      ).join('');
+    }
+
+    function renderAll() {
+      renderNav();
+      renderStatusFilter();
+      renderDashboard();
+      renderClientDetail();
+      renderAutomation();
+      renderBilling();
+      renderPublicReview();
+      document.getElementById('dashboardSearch').value = appState.dashboardSearch;
+    }
+
+    function logActivity(text) {
+      appState.activities.unshift({time: fmtTime(new Date()), text});
+    }
+    function logWebhook(type, client, status, note) {
+      appState.webhookEvents.unshift({time: fmtTime(new Date()), type, client, status, note});
+    }
+
+    // ── Billing simulations ────────────────────────────────────────────────
+    function invoicePaid(client) {
+      client.subscriptionStatus = 'Active';
+      client.paidThroughDate = daysFromNow(30);
+      client.reviewLinkStatus = 'Active';
+      if (!client.stripeCustomerId) client.stripeCustomerId = 'cus_' + client.id.toUpperCase();
+      if (!client.stripeSubscriptionId) client.stripeSubscriptionId = 'sub_' + client.id.toUpperCase();
+      client.billingHistory.unshift({date:today.toISOString().slice(0,10), type:'invoice.paid', note:'Simulated monthly renewal success'});
+      logWebhook('invoice.paid', client.name, 'Processed', 'Extended paid-through date and kept access active');
+      logActivity(`${client.name} renewal succeeded and access remains active.`);
+    }
+
+    function paymentFailed(client) {
+      client.subscriptionStatus = 'Past Due';
+      client.reviewLinkStatus = (client.paidThroughDate && new Date(client.paidThroughDate) >= today) ? 'Grace period' : 'Inactive';
+      client.billingHistory.unshift({date:today.toISOString().slice(0,10), type:'invoice.payment_failed', note:'Simulated renewal failure'});
+      logWebhook('invoice.payment_failed', client.name, 'Processed', 'Moved client to Past Due');
+      logActivity(`${client.name} moved to Past Due after simulated failed payment.`);
+    }
+
+    function expireNow(client) {
+      client.subscriptionStatus = 'Expired';
+      client.paidThroughDate = today.toISOString().slice(0,10);
+      client.reviewLinkStatus = 'Inactive';
+      client.cancellationDate = today.toISOString().slice(0,10);
+      client.billingHistory.unshift({date:today.toISOString().slice(0,10), type:'customer.subscription.deleted', note:'Simulated immediate expiration'});
+      logWebhook('customer.subscription.deleted', client.name, 'Processed', 'Expired subscription and disabled public review page');
+      logActivity(`${client.name} expired and public review link was disabled.`);
+    }
+
+    // ── Event listeners ────────────────────────────────────────────────────
+    document.querySelectorAll('[data-view-btn]').forEach(btn => btn.addEventListener('click', () => {
+      appState.selectedView = btn.dataset.viewBtn;
+      if (appState.selectedView === 'clients' && !appState.selectedClientId) {
+        appState.selectedClientId = appState.clients[0]?.id;
+      }
+      renderAll();
+    }));
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    document.getElementById('seedBtn').addEventListener('click', () => { seedData(); renderAll(); });
+
+    document.getElementById('dashboardStatusFilter').addEventListener('change', e => {
+      appState.dashboardStatus = e.target.value; renderDashboard();
+    });
+    document.getElementById('dashboardSearch').addEventListener('input', e => {
+      appState.dashboardSearch = e.target.value; renderDashboard();
+    });
+
+    document.addEventListener('click', e => {
+      const openBtn = e.target.closest('.open-client');
+      if (openBtn) {
+        appState.selectedClientId = openBtn.dataset.clientId;
+        appState.selectedView = 'clients';
+        appState.selectedClientTab = 'overview';
+        renderAll();
+      }
+      const billingBtn = e.target.closest('.billing-action');
+      if (billingBtn) {
+        const client = getClient(billingBtn.dataset.clientId);
+        if (!client) return;
+        if (billingBtn.dataset.action === 'invoice-paid') invoicePaid(client);
+        if (billingBtn.dataset.action === 'payment-failed') paymentFailed(client);
+        if (billingBtn.dataset.action === 'expire') expireNow(client);
+        renderAll();
+      }
+      const tabBtn = e.target.closest('[data-client-tab]');
+      if (tabBtn) { appState.selectedClientTab = tabBtn.dataset.clientTab; renderClientDetail(); }
+    });
+
+    document.getElementById('addClientForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('newClientName').value.trim();
+      const email = document.getElementById('newClientEmail').value.trim();
+      const sector = document.getElementById('newClientSector').value.trim() || 'Service business';
+      const onboardingStatus = document.getElementById('newOnboardingStatus').value;
+      if (!name || !email) return;
+      const id = 'c' + (Math.max(...appState.clients.map(c => Number(c.id.slice(1))), 0) + 1);
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      appState.clients.unshift({
+        id, name, email, phone:'', sector, onboardingStatus,
+        onboardingCompletedAt: onboardingStatus === 'Completed' ? today.toISOString().slice(0,10) : '',
+        financialCentsId:'', offerEligible: onboardingStatus === 'Completed',
+        offerSentAt:'', offerChannel: appState.automation.offerChannel,
+        offerStatus: onboardingStatus === 'Completed' ? 'Queued' : 'Not eligible',
+        activationSource:'', activationStartedAt:'',
+        stripeCustomerId:'', stripeSubscriptionId:'',
+        subscriptionStatus:'Not Subscribed', monthlyAmount:49,
+        billingStartDate:'', paidThroughDate:'', cancelScheduledAt:'', cancellationDate:'',
+        reviewLinkStatus:'Not active', reviewLinkUrl: '/review/' + slug,
+        businessSetup:{businessName:name, sector, slug, tone:'Helpful', googleUrl:'https://google.com/review/' + slug, privateEmail:email},
+        billingHistory:[],
+        onboardingTimeline:[
+          ['Proposal accepted', onboardingStatus !== 'Not Started'],
+          ['Client onboarded in Financial Cents', onboardingStatus === 'Completed'],
+          ['Flow Reviewer offer sent', false],
+          ['Subscription activated', false]
+        ]
+      });
+      appState.selectedClientId = id;
+      logActivity(`Client ${name} added to Flow Reviewer operations dashboard.`);
+      e.target.reset();
+      renderAll();
+    });
+
+    document.getElementById('automationForm').addEventListener('submit', e => {
+      e.preventDefault();
+      appState.automation = {
+        triggerLabel: document.getElementById('fcTriggerLabel').value.trim(),
+        stepName: document.getElementById('fcStepName').value.trim(),
+        webhookUrl: document.getElementById('zapierWebhookUrl').value.trim(),
+        sharedSecret: document.getElementById('sharedSecret').value.trim(),
+        offerChannel: document.getElementById('offerChannel').value,
+        offerDelay: document.getElementById('offerDelay').value,
+        stripeCheckoutUrl: document.getElementById('stripeCheckoutUrl').value.trim(),
+        monthlyPrice: document.getElementById('monthlyPrice').value.trim()
+      };
+      logActivity('Automation settings updated for Financial Cents and Zapier handoff.');
+      renderAll();
+    });
+
+    document.getElementById('sendTestTriggerBtn').addEventListener('click', () => {
+      const queuedClient = appState.clients.find(c => c.offerEligible && !c.offerSentAt);
+      if (queuedClient) {
+        queuedClient.offerSentAt = today.toISOString().slice(0,10);
+        queuedClient.offerStatus = 'Sent';
+        queuedClient.onboardingTimeline[2][1] = true;
+        logActivity(`Test trigger processed for ${queuedClient.name}; Flow Reviewer offer sent via ${appState.automation.offerChannel}.`);
+        logWebhook('financial_cents.onboarding_completed', queuedClient.name, 'Processed', 'Client marked offer-eligible and upsell sent');
+      } else {
+        logWebhook('financial_cents.onboarding_completed', 'No queued client', 'Rejected', 'No eligible unsent client found for demo trigger');
+      }
+      renderAll();
+    });
+
+    document.getElementById('publicClientSelect').addEventListener('change', e => {
+      appState.publicClientId = e.target.value; renderPublicReview();
+    });
+
+    document.getElementById('businessSetupForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const client = getClient(appState.publicClientId);
+      if (!client) return;
+      client.businessSetup.businessName = document.getElementById('setupBusinessName').value.trim();
+      client.businessSetup.sector = document.getElementById('setupSector').value.trim();
+      client.businessSetup.slug = document.getElementById('setupSlug').value.trim();
+      client.businessSetup.tone = document.getElementById('setupTone').value;
+      client.businessSetup.googleUrl = document.getElementById('setupGoogle').value.trim();
+      client.businessSetup.privateEmail = document.getElementById('setupPrivateEmail').value.trim();
+      client.reviewLinkUrl = '/review/' + client.businessSetup.slug;
+      logActivity(`Business setup saved for ${client.name}.`);
+      renderAll();
+    });
+
+    document.getElementById('downloadCsvBtn').addEventListener('click', () => {
+      const headers = ['Client name','Email','Sector','Onboarding completed','Offer sent','Subscription status','Stripe customer ID','Stripe subscription ID','Monthly amount','Paid through','Cancellation date','Review link status','Review link URL'];
+      const rows = appState.clients.map(c => [c.name,c.email,c.sector,c.onboardingCompletedAt,c.offerSentAt,c.subscriptionStatus,c.stripeCustomerId,c.stripeSubscriptionId,c.monthlyAmount,c.paidThroughDate,c.cancellationDate,c.reviewLinkStatus,c.reviewLinkUrl]);
+      const csv = [headers,...rows].map(row => row.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'flow-reviewer-subscriptions.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // ── Boot ───────────────────────────────────────────────────────────────
+    seedData();
+    renderAll();
+  </script>
+</body>
+</html>
