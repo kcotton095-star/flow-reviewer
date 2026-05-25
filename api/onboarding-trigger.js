@@ -1,17 +1,32 @@
 /**
- * Flow Reviewer - Onboarding Trigger Endpoint
+ * Flow Reviewer — Onboarding Trigger Endpoint
  * POST /api/onboarding-trigger
  *
  * Called by Zapier when a client completes onboarding in Financial Cents.
- * Phase 1: Validates and logs the event (no DB persistence yet).
- * Phase 2: Replace TODO blocks with Supabase/Neon writes.
+ * Validates the shared secret, upserts the client record, and sends
+ * the upsell offer email via Resend.
+ *
+ * Expected payload:
+ * {
+ *   "client_name": "Acme Plumbing",
+ *   "client_email": "owner@acmeplumbing.com",
+ *   "client_phone": "+1-555-111-2222",
+ *   "onboarding_completed_at": "2026-05-24T13:00:00Z",
+ *   "financial_cents_client_id": "fc_12345",
+ *   "service_type": "Bookkeeping",
+ *   "event_type": "onboarding_completed"
+ * }
  */
+
+const { getDb, logWebhookEvent } = require('./_db');
+const { sendUpsellOffer }        = require('./_send-upsell-offer');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // ── Shared secret validation ──────────────────────────────────────────────
   const incomingSecret =
     req.headers['x-flow-reviewer-secret'] ||
     req.headers['x-shared-secret'] ||
@@ -20,8 +35,8 @@ module.exports = async function handler(req, res) {
   const expectedSecret = process.env.FLOW_REVIEWER_SHARED_SECRET;
 
   if (!expectedSecret) {
-    console.error('[onboarding-trigger] FLOW_REVIEWER_SHARED_SECRET env var not set.');
-    return res.status(500).json({ error: 'Server misconfiguration' });
+    console.error('[onboarding-trigger] FLOW_REVIEWER_SHARED_SECRET env var is not set.');
+    return res.status(500).json({ error: 'Server misconfiguration: missing secret env var' });
   }
 
   if (!incomingSecret || incomingSecret !== expectedSecret) {
@@ -29,6 +44,7 @@ module.exports = async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
+  // ── Payload validation ────────────────────────────────────────────────────
   const body = req.body || {};
   const {
     client_name,
@@ -45,41 +61,77 @@ module.exports = async function handler(req, res) {
   }
 
   if (event_type && event_type !== 'onboarding_completed') {
-    return res.status(400).json({ error: 'Unknown event_type: ' + event_type });
+    return res.status(400).json({ error: `Unknown event_type: ${event_type}` });
   }
 
+  // ── Build slug ────────────────────────────────────────────────────────────
+  const slug = client_name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  // ── Upsert client record ──────────────────────────────────────────────────
+  const db = getDb();
+
   const clientRecord = {
-    name: client_name,
-    email: client_email,
-    phone: client_phone || '',
-    sector: service_type || 'Service business',
-    onboardingStatus: 'Completed',
-    onboardingCompletedAt: onboarding_completed_at || new Date().toISOString(),
-    financialCentsId: financial_cents_client_id || '',
-    offerEligible: true,
-    offerStatus: 'Queued',
-    subscriptionStatus: 'Not Subscribed',
-    monthlyAmount: 49,
-    reviewLinkUrl: '/review/' + client_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/, ''),
+    name:                    client_name,
+    email:                   client_email,
+    phone:                   client_phone  || null,
+    sector:                  service_type  || 'Service business',
+    onboarding_status:       'Completed',
+    onboarding_completed_at: onboarding_completed_at || new Date().toISOString(),
+    financial_cents_id:      financial_cents_client_id || null,
+    offer_eligible:          true,
+    offer_status:            'Queued',
+    subscription_status:     'Not Subscribed',
+    monthly_amount:          49,
+    review_link_url:         `/review/${slug}`,
+    business_name:           client_name,
+    business_slug:           slug,
+    business_tone:           'Helpful',
+    private_feedback_email:  client_email,
   };
 
-  console.log('[onboarding-trigger] Valid onboarding event:', {
-    client: client_name,
-    email: client_email,
-    financial_cents_client_id,
-  });
+  const { data: upserted, error: upsertError } = await db
+    .from('clients')
+    .upsert(clientRecord, { onConflict: 'email' })
+    .select()
+    .single();
 
-  // TODO Phase 2: Persist to database
-  // const db = getDb();
-  // await db.from('clients').upsert({ ...clientRecord }, { onConflict: 'financialCentsId' });
+  if (upsertError) {
+    console.error('[onboarding-trigger] DB upsert failed:', upsertError.message);
+    await logWebhookEvent(db, 'financial_cents.onboarding_completed', client_email,
+      'Failed', `DB upsert error: ${upsertError.message}`, body);
+    return res.status(500).json({ error: 'Database error' });
+  }
 
-  // TODO Phase 2: Enqueue upsell offer
-  // await sendUpsellOffer({ client: clientRecord, channel: 'Email' });
+  console.log('[onboarding-trigger] Client upserted:', { name: client_name, email: client_email });
+
+  await logWebhookEvent(db, 'financial_cents.onboarding_completed', client_email,
+    'Processed', 'Client upserted, offer queued', body);
+
+  // ── Send upsell offer email ───────────────────────────────────────────────
+  try {
+    await sendUpsellOffer({ client: upserted });
+    await db
+      .from('clients')
+      .update({
+        offer_status:  'Sent',
+        offer_sent_at: new Date().toISOString(),
+        offer_channel: 'Email',
+      })
+      .eq('email', client_email);
+  } catch (emailErr) {
+    // Non-fatal: log but return 200 so Zapier doesn't retry
+    console.error('[onboarding-trigger] Failed to send upsell offer:', emailErr.message);
+    await logWebhookEvent(db, 'financial_cents.offer_email', client_email,
+      'Failed', emailErr.message, {});
+  }
 
   return res.status(200).json({
-    success: true,
-    message: 'Onboarding event received and queued for processing.',
-    client: clientRecord.name,
-    offerStatus: 'Queued',
+    success:     true,
+    message:     'Onboarding event processed.',
+    client:      client_name,
+    offerStatus: 'Sent',
   });
 };
