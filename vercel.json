@@ -11,8 +11,5 @@
     { "src": "/api/stripe-webhook", "dest": "/api/stripe-webhook.js" },
     { "src": "/data/(.*)", "dest": "/data/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "env": {
-    "FLOW_REVIEWER_SHARED_SECRET": "@flow_reviewer_shared_secret"
-  }
+  ]
 }
