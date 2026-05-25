@@ -1,15 +1,29 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" },
-    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "api/*.js",    "use": "@vercel/node" },
+    { "src": "index.html",  "use": "@vercel/static" },
+    { "src": "review.html", "use": "@vercel/static" },
     { "src": "favicon.svg", "use": "@vercel/static" },
     { "src": "data/*.json", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/onboarding-trigger", "dest": "/api/onboarding-trigger.js" },
-    { "src": "/api/stripe-webhook", "dest": "/api/stripe-webhook.js" },
-    { "src": "/data/(.*)", "dest": "/data/$1" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
+    { "src": "/api/stripe-webhook",     "dest": "/api/stripe-webhook.js" },
+    { "src": "/api/review-config",      "dest": "/api/review-config.js" },
+    { "src": "/api/review-submit",      "dest": "/api/review-submit.js" },
+    { "src": "/api/dashboard-data",     "dest": "/api/dashboard-data.js" },
+    { "src": "/review/(.*)",            "dest": "/review.html" },
+    { "src": "/data/(.*)",              "dest": "/data/$1" },
+    { "src": "/(.*)",                   "dest": "/index.html" }
+  ],
+  "env": {
+    "FLOW_REVIEWER_SHARED_SECRET": "@flow_reviewer_shared_secret",
+    "SUPABASE_URL":                "@supabase_url",
+    "SUPABASE_SERVICE_KEY":        "@supabase_service_key",
+    "RESEND_API_KEY":              "@resend_api_key",
+    "FROM_EMAIL":                  "@from_email",
+    "SITE_URL":                    "@site_url",
+    "STRIPE_PAYMENT_LINK":         "@stripe_payment_link"
+  }
 }

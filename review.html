@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave a Review</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .logo-ring {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 32px;
+    }
+
+    h1 { font-size: 24px; color: #1a1a2e; margin-bottom: 8px; font-weight: 700; }
+    .subtitle { color: #666; font-size: 15px; margin-bottom: 36px; line-height: 1.5; }
+
+    /* Stars */
+    .stars-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .star {
+      font-size: 44px;
+      cursor: pointer;
+      transition: transform 0.15s, filter 0.15s;
+      filter: grayscale(1) opacity(0.35);
+      user-select: none;
+      line-height: 1;
+    }
+
+    .star:hover,
+    .star.hovered,
+    .star.selected {
+      filter: none;
+      transform: scale(1.12);
+    }
+
+    /* Comment box */
+    .comment-section { display: none; margin-bottom: 24px; text-align: left; }
+    .comment-section.show { display: block; }
+
+    label { font-size: 13px; color: #555; font-weight: 600; display: block; margin-bottom: 6px; }
+
+    textarea {
+      width: 100%;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #333;
+      resize: vertical;
+      min-height: 96px;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { outline: none; border-color: #667eea; }
+
+    input[type="text"] {
+      width: 100%;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #333;
+      transition: border-color 0.2s;
+    }
+    input:focus { outline: none; border-color: #667eea; }
+
+    .btn {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      display: none;
+    }
+    .btn.show { display: block; }
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* States */
+    .state { display: none; }
+    .state.active { display: block; }
+
+    /* Thank you */
+    .thankyou-icon { font-size: 64px; margin-bottom: 16px; }
+    .thankyou h2 { font-size: 22px; color: #1a1a2e; margin-bottom: 12px; }
+    .thankyou p { color: #666; line-height: 1.6; }
+
+    /* Error */
+    .error-msg {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #dc2626;
+      font-size: 13px;
+      margin-top: 16px;
+      display: none;
+    }
+
+    /* Loading */
+    .loading-spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .powered {
+      margin-top: 32px;
+      font-size: 11px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Loading state -->
+  <div id="state-loading" class="state active">
+    <div class="logo-ring">⭐</div>
+    <p style="color:#999;font-size:15px;">Loading your review page…</p>
+  </div>
+
+  <!-- Error state -->
+  <div id="state-error" class="state">
+    <div class="logo-ring">😕</div>
+    <h1>Page not found</h1>
+    <p class="subtitle">This review link doesn't seem to be active.<br>
+      Please contact your bookkeeper for a new link.</p>
+  </div>
+
+  <!-- Review form -->
+  <div id="state-form" class="state">
+    <div class="logo-ring">⭐</div>
+    <h1 id="business-name">Leave a Review</h1>
+    <p class="subtitle" id="intro-text">How was your experience? Your feedback means a lot.</p>
+
+    <div class="stars-row" id="stars-row">
+      <span class="star" data-value="1">⭐</span>
+      <span class="star" data-value="2">⭐</span>
+      <span class="star" data-value="3">⭐</span>
+      <span class="star" data-value="4">⭐</span>
+      <span class="star" data-value="5">⭐</span>
+    </div>
+
+    <div class="comment-section" id="comment-section">
+      <label for="reviewer-name">Your name (optional)</label>
+      <input type="text" id="reviewer-name" placeholder="Jane Smith" style="margin-bottom:12px;">
+
+      <label for="review-comment" id="comment-label">Tell us more</label>
+      <textarea id="review-comment" placeholder="What went well? What could we improve?"></textarea>
+    </div>
+
+    <button class="btn" id="submit-btn" onclick="submitReview()">Submit review</button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <!-- Thank you — positive (redirect to Google) -->
+  <div id="state-google" class="state">
+    <div class="thankyou-icon">🎉</div>
+    <div class="thankyou">
+      <h2>Thank you so much!</h2>
+      <p>We're so glad you had a great experience.<br>
+         You're being taken to Google to share your review…</p>
+    </div>
+  </div>
+
+  <!-- Thank you — private feedback -->
+  <div id="state-thankyou" class="state">
+    <div class="thankyou-icon">💙</div>
+    <div class="thankyou">
+      <h2>Thank you for your feedback</h2>
+      <p>We genuinely appreciate you taking the time to share your thoughts.
+         Your feedback has been received and we'll be in touch soon.</p>
+    </div>
+  </div>
+
+  <p class="powered">Powered by Flow Reviewer</p>
+</div>
+
+<script>
+  // ── Extract slug from path: /review/acme-plumbing → acme-plumbing ─────────
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  const slug = pathParts[pathParts.length - 1] || '';
+
+  let config   = null;
+  let selected = 0;
+
+  // ── Load business config ──────────────────────────────────────────────────
+  async function loadConfig() {
+    try {
+      const res = await fetch(`/api/review-config?slug=${encodeURIComponent(slug)}`);
+      if (!res.ok) throw new Error(await res.text());
+      config = await res.json();
+      renderForm();
+    } catch (err) {
+      showState('state-error');
+    }
+  }
+
+  function renderForm() {
+    document.getElementById('business-name').textContent =
+      `How did we do, ${config.businessName}?`;
+    applyTone(config.tone);
+    showState('state-form');
+  }
+
+  function applyTone(tone) {
+    const intros = {
+      'Helpful':      'Your feedback helps us serve you better. How was your experience?',
+      'Warm':         'We truly value your opinion — how was your experience with us?',
+      'Direct':       'How would you rate our service? Honest feedback welcome.',
+      'Professional': 'We appreciate your business. Please rate your recent experience.',
+    };
+    document.getElementById('intro-text').textContent =
+      intros[tone] || intros['Helpful'];
+  }
+
+  // ── Star interaction ──────────────────────────────────────────────────────
+  const starsRow = document.getElementById('stars-row');
+  const stars    = starsRow.querySelectorAll('.star');
+
+  starsRow.addEventListener('mousemove', (e) => {
+    const star = e.target.closest('.star');
+    if (!star) return;
+    const hoverVal = parseInt(star.dataset.value);
+    stars.forEach(s => {
+      const v = parseInt(s.dataset.value);
+      s.classList.toggle('hovered', v <= hoverVal);
+    });
+  });
+
+  starsRow.addEventListener('mouseleave', () => {
+    stars.forEach(s => s.classList.remove('hovered'));
+  });
+
+  starsRow.addEventListener('click', (e) => {
+    const star = e.target.closest('.star');
+    if (!star) return;
+    selected = parseInt(star.dataset.value);
+    stars.forEach(s => {
+      const v = parseInt(s.dataset.value);
+      s.classList.toggle('selected', v <= selected);
+      s.classList.remove('hovered');
+    });
+    onStarSelected(selected);
+  });
+
+  function onStarSelected(rating) {
+    const commentSection = document.getElementById('comment-section');
+    const commentLabel   = document.getElementById('comment-label');
+    const submitBtn      = document.getElementById('submit-btn');
+
+    commentSection.classList.add('show');
+    submitBtn.classList.add('show');
+
+    if (rating >= 4) {
+      commentLabel.textContent = 'Anything else you\'d like to share? (optional)';
+      document.getElementById('review-comment').placeholder =
+        'We\'d love to hear what you enjoyed!';
+      submitBtn.textContent = '⭐ Share on Google';
+    } else {
+      commentLabel.textContent = 'Please tell us more so we can improve:';
+      document.getElementById('review-comment').placeholder =
+        'What could we have done better?';
+      submitBtn.textContent = 'Submit feedback';
+    }
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  async function submitReview() {
+    if (!selected) return;
+
+    const btn     = document.getElementById('submit-btn');
+    const errEl   = document.getElementById('error-msg');
+    const name    = document.getElementById('reviewer-name').value.trim();
+    const comment = document.getElementById('review-comment').value.trim();
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> Submitting…';
+    errEl.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/review-submit', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          rating:       selected,
+          comment:      comment,
+          reviewerName: name,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Submission failed');
+
+      if (data.action === 'redirect' && data.googleUrl) {
+        showState('state-google');
+        setTimeout(() => { window.location.href = data.googleUrl; }, 1800);
+      } else {
+        showState('state-thankyou');
+      }
+
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = selected >= 4 ? '⭐ Share on Google' : 'Submit feedback';
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function showState(id) {
+    document.querySelectorAll('.state').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  loadConfig();
+</script>
+</body>
+</html>
