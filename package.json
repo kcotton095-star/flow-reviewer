@@ -1,6 +1,6 @@
 {
   "name": "flow-reviewer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Flow Reviewer — Google review funnel for Flow Bookkeeping Services clients",
   "private": true,
   "engines": {
