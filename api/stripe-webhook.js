@@ -6,52 +6,43 @@
  * the clients table in Supabase accordingly.
  *
  * Handled event types:
- *   checkout.session.completed    → Activate subscription, set paid-through date
- *   invoice.paid                  → Extend paid-through date by 30 days
- *   invoice.payment_failed        → Move to Past Due, keep grace-period access
- *   customer.subscription.updated → Handle cancel-at-period-end scheduling
- *   customer.subscription.deleted → Expire subscription, deactivate review link
- *
- * TODO: Uncomment Stripe signature verification once STRIPE_WEBHOOK_SECRET is set.
+ *   checkout.session.completed    -> Activate subscription, set paid-through date
+ *   invoice.paid                  -> Extend paid-through date by 30 days
+ *   invoice.payment_failed        -> Move to Past Due, keep grace-period access
+ *   customer.subscription.updated -> Handle cancel-at-period-end scheduling
+ *   customer.subscription.deleted -> Expire subscription, deactivate review link
  */
 
 const { getDb, logWebhookEvent } = require('./_db');
 
-function addDays(date, n) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
-}
-
-function tsToDate(unixTs) {
-  return new Date(unixTs * 1000).toISOString().slice(0, 10);
-}
-
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // ── Stripe signature verification (uncomment when STRIPE_WEBHOOK_SECRET is set) ──
-  // const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-  // const sig    = req.headers['stripe-signature'];
-  // let event;
-  // try {
-  //   event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  // } catch (err) {
-  //   console.error('[stripe-webhook] Signature verification failed:', err.message);
-  //   return res.status(400).json({ error: `Webhook error: ${err.message}` });
-  // }
+  // -- Stripe signature verification ------------------------------------------
+  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+  const sig = req.headers['stripe-signature'];
 
-  const event = req.body;
+  const rawBody = await new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
 
-  if (!event || !event.type) {
-    return res.status(400).json({ error: 'Invalid Stripe event: missing type' });
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('[stripe-webhook] Signature verification failed:', err.message);
+    return res.status(400).json({ error: `Webhook error: ${err.message}` });
   }
+  // ---------------------------------------------------------------------------
 
   console.log(`[stripe-webhook] Received event: ${event.type}`);
 
-  const db   = getDb();
+  const db = getDb();
   const data = event.data?.object || {};
 
   switch (event.type) {
@@ -139,7 +130,6 @@ module.exports = async function handler(req, res) {
           error ? error.message : `Cancel scheduled; access until ${currentPeriodEnd}`,
           { customerId, cancelAtPeriodEnd, currentPeriodEnd });
       } else {
-        // Cancellation reversed
         const { error } = await db.from('clients').update({
           subscription_status: 'Active',
           cancel_scheduled_at: null,
@@ -175,9 +165,27 @@ module.exports = async function handler(req, res) {
     }
 
     default:
-      console.log(`[stripe-webhook] Unhandled event type: ${event.type} — ignoring`);
+      console.log(`[stripe-webhook] Unhandled event type: ${event.type} -- ignoring`);
       await logWebhookEvent(db, `stripe.${event.type}`, null, 'Ignored', 'Unhandled event type', {});
   }
 
   return res.status(200).json({ received: true, type: event.type });
+}
+
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function tsToDate(unixTs) {
+  return new Date(unixTs * 1000).toISOString().slice(0, 10);
+}
+
+handler.config = {
+  api: {
+    bodyParser: false,
+  },
 };
+
+module.exports = handler;
