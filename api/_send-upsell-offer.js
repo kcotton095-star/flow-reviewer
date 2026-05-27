@@ -1,155 +1,224 @@
 /**
- * Flow Reviewer — Upsell Offer Email
+ * _send-upsell-offer.js
+ * Post-onboarding upsell email for Flow Bookkeeping Services clients.
  *
- * Sends a branded email to a newly-onboarded client via Resend.
- * Called from onboarding-trigger.js after the DB upsert.
+ * Introduces both optional add-on apps to newly onboarded clients:
+ *   • Flow Receipt Capture  — $19.95/mo  (prod_receipt_cap)
+ *   • Flow Reviewer         — $19.95/mo  (prod_flow_reviewer)
  *
- * Required env var:
- *   RESEND_API_KEY   — get from resend.com/api-keys
+ * Both are billed COMPLETELY SEPARATELY from the bookkeeping retainer.
+ * Never mix these revenue streams.
  *
- * Optional env vars (fall back to defaults):
- *   FROM_EMAIL       — e.g. "Flow Bookkeeping <karen@flowbookkeeping.com>"
- *   SITE_URL         — e.g. "https://flow-reviewer-hh88.vercel.app"
- *   STRIPE_PAYMENT_LINK — your Stripe Payment Link URL for $49/month
+ * Called by:
+ *   - /api/new-client  (Zapier webhook, 2-4hr delay after onboarding)
+ *   - /api/onboarding-trigger (direct call after DB upsert)
  *
- * Usage:
- *   const { sendUpsellOffer } = require('./_send-upsell-offer');
- *   await sendUpsellOffer({ client });   // client is the DB row
+ * Required env vars:
+ *   RESEND_API_KEY        — resend.com API key
+ *   FROM_EMAIL            — "Karen Cotton <karen@flowbookkeepingservices.com>"
+ *   SITE_URL              — "https://flow-reviewer-hh88.vercel.app"
  */
 
 const { Resend } = require('resend');
 
+const SITE_URL       = process.env.SITE_URL  || 'https://flow-reviewer-hh88.vercel.app';
+const FROM_EMAIL     = process.env.FROM_EMAIL || 'Karen Cotton <karen@flowbookkeepingservices.com>';
+const SUBSCRIBE_PAGE = `${SITE_URL}/subscribe`;
+
+/**
+ * sendUpsellOffer({ client })
+ *
+ * @param {Object}  client
+ * @param {string}  client.email        — recipient email (required)
+ * @param {string}  client.name         — full name  (firstName extracted)
+ * @param {string}  [client.firstName]  — override first name
+ * @param {string}  [client.companyName]
+ */
 async function sendUpsellOffer({ client }) {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) throw new Error('RESEND_API_KEY env var is not set');
+  if (!apiKey)      throw new Error('RESEND_API_KEY env var is not set');
+  if (!client.email) throw new Error('client.email is required');
 
-  const resend       = new Resend(apiKey);
-  const from         = process.env.FROM_EMAIL        || 'Flow Bookkeeping Services <noreply@flowbookkeeping.com>';
-  const siteUrl      = process.env.SITE_URL          || 'https://flow-reviewer-hh88.vercel.app';
-  const paymentLink  = process.env.STRIPE_PAYMENT_LINK || `${siteUrl}/subscribe`;
+  const resend = new Resend(apiKey);
 
-  const reviewUrl    = `${siteUrl}${client.review_link_url || '/review/' + client.business_slug}`;
-  const firstName    = (client.name || 'there').split(' ')[0];
+  const firstName   = client.firstName || (client.name || 'there').split(' ')[0];
+  const companyName = client.companyName || client.business_name || '';
 
-  const html = buildEmailHtml({ client, firstName, reviewUrl, paymentLink });
-  const text = buildEmailText({ client, firstName, reviewUrl, paymentLink });
+  // Subscribe page URL with email + name pre-filled for personalised checkout
+  const subscribeUrl = `${SUBSCRIBE_PAGE}?email=${encodeURIComponent(client.email)}&name=${encodeURIComponent(firstName)}`;
+
+  const subject = `Welcome to Flow, ${firstName} — two tools that make bookkeeping effortless`;
 
   const { data, error } = await resend.emails.send({
-    from,
+    from:    FROM_EMAIL,
     to:      client.email,
-    subject: `Your free review link is ready, ${firstName} 🎉`,
-    html,
-    text,
+    subject,
+    html:    buildEmailHtml({ firstName, companyName, subscribeUrl }),
+    text:    buildEmailText({ firstName, companyName, subscribeUrl }),
+    tags: [
+      { name: 'category', value: 'upsell_offer' },
+      { name: 'client',   value: client.email.replace(/[^a-z0-9_-]/gi, '_') },
+    ],
   });
 
   if (error) throw new Error(`Resend error: ${error.message}`);
 
-  console.log(`[send-upsell-offer] Email sent to ${client.email} — id: ${data?.id}`);
+  console.log(`[send-upsell-offer] Sent to ${client.email} — id: ${data?.id}`);
   return data;
 }
 
-// ── HTML email template ───────────────────────────────────────────────────────
-function buildEmailHtml({ client, firstName, reviewUrl, paymentLink }) {
+// ── HTML email template ────────────────────────────────────────────────────────────────────────────
+function buildEmailHtml({ firstName, companyName, subscribeUrl }) {
+  const companyLine = companyName ? ` at ${companyName}` : '';
   return `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to Flow</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-         background: #f5f5f5; margin: 0; padding: 0; }
-  .wrapper { max-width: 560px; margin: 40px auto; background: #fff;
-             border-radius: 12px; overflow: hidden;
-             box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-  .header  { background: #1a1a2e; padding: 32px 40px; text-align: center; }
-  .header h1 { color: #fff; margin: 0; font-size: 22px; font-weight: 700; }
-  .header p  { color: #a0a8c0; margin: 6px 0 0; font-size: 14px; }
-  .body    { padding: 36px 40px; }
-  .body p  { color: #333; line-height: 1.65; margin: 0 0 16px; font-size: 15px; }
-  .review-box { background: #f0f4ff; border: 2px solid #4f46e5; border-radius: 10px;
-                padding: 20px 24px; margin: 24px 0; text-align: center; }
-  .review-box p { margin: 0 0 12px; color: #4338ca; font-weight: 600; font-size: 15px; }
-  .review-url { font-family: monospace; font-size: 13px; color: #555;
-                word-break: break-all; margin: 0 0 16px; }
-  .btn { display: inline-block; background: #4f46e5; color: #fff; text-decoration: none;
-         padding: 12px 28px; border-radius: 8px; font-weight: 600; font-size: 15px;
-         margin-top: 4px; }
-  .upgrade { background: #fff7ed; border: 1px solid #fbbf24; border-radius: 10px;
-             padding: 20px 24px; margin: 24px 0; }
-  .upgrade p { margin: 0 0 8px; color: #92400e; font-size: 14px; }
-  .upgrade strong { font-size: 18px; color: #1a1a2e; }
-  .upgrade-btn { display: inline-block; background: #f59e0b; color: #fff;
-                 text-decoration: none; padding: 11px 26px; border-radius: 8px;
-                 font-weight: 600; font-size: 14px; margin-top: 12px; }
-  .footer { background: #f9f9f9; padding: 20px 40px; text-align: center; }
-  .footer p { color: #999; font-size: 12px; margin: 0; }
+  body{margin:0;padding:0;background:#f4f6f9;font-family:'DM Sans',Helvetica,Arial,sans-serif;color:#1a1f2e;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:600px;margin:32px auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.09)}
+  .hdr{background:#015f6b;padding:28px 36px;display:flex;align-items:center;gap:14px}
+  .hdr-icon{width:42px;height:42px;min-width:42px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center}
+  .hdr-name{color:#ffffff;font-size:16px;font-weight:700;letter-spacing:-.01em}
+  .hdr-sub{color:rgba(255,255,255,.7);font-size:12px;margin-top:2px}
+  .body{padding:36px}
+  p{font-size:15px;color:#5a6278;line-height:1.7;margin:0 0 16px}
+  .greet{font-size:21px;font-weight:800;color:#1a1f2e;margin-bottom:14px;letter-spacing:-.02em}
+  hr{border:none;border-top:1px solid #d0d6e4;margin:24px 0}
+  .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#015f6b;margin-bottom:14px}
+  .acard{border:1.5px solid #d0d6e4;border-radius:10px;padding:20px 22px;margin-bottom:14px}
+  .acard-name{font-size:16px;font-weight:800;color:#1a1f2e;margin-bottom:3px}
+  .acard-price{font-size:12px;color:#9aa0b4;font-weight:500;margin-bottom:12px}
+  ul.feats{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+  ul.feats li{font-size:13.5px;color:#5a6278;padding-left:20px;position:relative}
+  ul.feats li::before{content:'\u2713';position:absolute;left:0;color:#2d7a3a;font-weight:700;font-size:12px;top:1px}
+  .cta-wrap{text-align:center;padding:20px 0 8px}
+  .cta{display:inline-block;background:#015f6b;color:#ffffff !important;text-decoration:none;font-size:15px;font-weight:700;padding:15px 40px;border-radius:8px;letter-spacing:-.01em}
+  .note{font-size:12.5px;color:#9aa0b4;text-align:center;line-height:1.6;padding:0 8px}
+  .sig{font-size:14px;color:#5a6278;line-height:1.75}
+  .sig strong{color:#1a1f2e}
+  .foot{background:#f4f6f9;border-top:1px solid #d0d6e4;padding:16px 36px;text-align:center;font-size:11.5px;color:#9aa0b4;line-height:1.7}
+  .foot a{color:#015f6b;text-decoration:none}
+  @media(max-width:600px){.wrap{margin:0;border-radius:0}.body,.foot{padding:24px 20px}.hdr{padding:20px}}
 </style>
 </head>
 <body>
-<div class="wrapper">
-  <div class="header">
-    <h1>Flow Bookkeeping Services</h1>
-    <p>Your review system is ready</p>
+<div class="wrap">
+  <div class="hdr">
+    <div class="hdr-icon">
+      <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+        <path d="M8 10h10a6 6 0 0 1 0 12H8" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M8 16h8" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+      </svg>
+    </div>
+    <div>
+      <div class="hdr-name">Flow Bookkeeping Services</div>
+      <div class="hdr-sub">Charleston, SC</div>
+    </div>
   </div>
+
   <div class="body">
-    <p>Hi ${firstName},</p>
-    <p>Welcome aboard! Your onboarding is complete and I've set up a personalised
-       Google review link for <strong>${client.business_name || client.name}</strong>.
-       Start sending it to happy clients today — completely free.</p>
+    <div class="greet">Hi ${firstName}, welcome to Flow! \u{1F44B}</div>
 
-    <div class="review-box">
-      <p>Your free review link</p>
-      <p class="review-url">${reviewUrl}</p>
-      <a href="${reviewUrl}" class="btn">Preview your review page</a>
+    <p>We're so glad to have you on board${companyLine}. Your bookkeeping is in good hands — we're already getting your account organized.</p>
+
+    <p>As a Flow client, you have access to two tools that take the hassle completely out of your monthly bookkeeping. These are <strong>optional add-ons</strong> — each available separately for <strong>$19.95/month</strong> on autopay, billed completely separately from your bookkeeping service.</p>
+
+    <hr>
+    <div class="lbl">Available Add-On Apps</div>
+
+    <div class="acard">
+      <div class="acard-name">\u{1F4F8}&nbsp; Flow Receipt Capture</div>
+      <div class="acard-price">$19.95/month — billed separately &middot; autopay &middot; cancel anytime</div>
+      <ul class="feats">
+        <li>Snap a photo of any receipt from your phone</li>
+        <li>AI reads, categorizes, and names it instantly</li>
+        <li>Automatically uploads to your Dropbox bookkeeping folder</li>
+        <li>Duplicate detection, spending alerts &amp; monthly insights</li>
+        <li>No more collecting, scanning, or emailing receipts to us</li>
+      </ul>
     </div>
 
-    <p>The page greets your clients by name, guides them toward leaving a
-       5-star Google review, and quietly captures any negative feedback
-       before it goes public.</p>
-
-    <div class="upgrade">
-      <p>Want the full system — automated follow-ups, review monitoring,
-         and monthly reporting?</p>
-      <strong>Flow Reviewer — $49/month</strong>
-      <br>
-      <a href="${paymentLink}" class="upgrade-btn">Activate for $49/month →</a>
+    <div class="acard">
+      <div class="acard-name">\u{1F50D}&nbsp; Flow Reviewer</div>
+      <div class="acard-price">$19.95/month — billed separately &middot; autopay &middot; cancel anytime</div>
+      <ul class="feats">
+        <li>Review and approve your monthly bookkeeping entries</li>
+        <li>Flag items or leave notes directly for your bookkeeper</li>
+        <li>See spending summaries, trends, and category breakdowns</li>
+        <li>Approve reports right from your phone</li>
+        <li>Direct communication channel with the Flow team</li>
+      </ul>
     </div>
 
-    <p>Questions? Just reply to this email.</p>
-    <p>— Karen<br><span style="color:#999;font-size:13px;">Flow Bookkeeping Services</span></p>
+    <hr>
+    <p>You can subscribe to one or both — they work independently and are billed as separate subscriptions. Click below to choose your plan:</p>
+
+    <div class="cta-wrap">
+      <a href="${subscribeUrl}" class="cta">Set Up My Apps →</a>
+    </div>
+
+    <p class="note">Both apps are month-to-month with no contracts. Cancel anytime. Subscribing to an app does <strong>not</strong> affect your Flow Bookkeeping Services billing — they are completely separate charges on your card.</p>
+
+    <hr>
+    <p>Questions? Just reply to this email or book a quick call. We're here to make your bookkeeping as smooth as possible.</p>
+
+    <p class="sig">Talk soon,<br><strong>Karen Cotton</strong><br>Flow Bookkeeping Services &middot; Charleston, SC</p>
   </div>
-  <div class="footer">
-    <p>Flow Bookkeeping Services &bull; You're receiving this because you recently onboarded.</p>
+
+  <div class="foot">
+    Flow Bookkeeping Services &middot; Charleston, SC &middot; <a href="mailto:karen@flowbookkeepingservices.com">karen@flowbookkeepingservices.com</a><br>
+    You're receiving this because you're a new Flow Bookkeeping Services client.
   </div>
 </div>
 </body>
 </html>`;
 }
 
-// ── Plain-text fallback ───────────────────────────────────────────────────────
-function buildEmailText({ client, firstName, reviewUrl, paymentLink }) {
-  return `Hi ${firstName},
+// ── Plain-text fallback ───────────────────────────────────────────────────────────────────────────────
+function buildEmailText({ firstName, companyName, subscribeUrl }) {
+  const companyLine = companyName ? ` at ${companyName}` : '';
+  return `Hi ${firstName}, welcome to Flow! \u{1F44B}
 
-Welcome aboard! Your onboarding is complete and I've set up a free personalised
-Google review link for ${client.business_name || client.name}.
+We're so glad to have you on board${companyLine}. Your bookkeeping is in good hands.
 
-Your review link:
-${reviewUrl}
+As a Flow client, you have access to two optional add-on tools — each $19.95/month
+on autopay, billed completely separately from your bookkeeping service.
 
-The page guides happy clients to leave a 5-star Google review and captures
-negative feedback privately before it goes public.
+────────────────────────────────────────
+\u{1F4F8} FLOW RECEIPT CAPTURE — $19.95/mo (billed separately)
+────────────────────────────────────────
+• Snap a photo of any receipt from your phone
+• AI reads, categorizes, and names it instantly
+• Automatically uploads to your Dropbox bookkeeping folder
+• Duplicate detection, spending alerts & monthly insights
+• No more collecting, scanning, or emailing receipts
 
-──────────────────────────────────────
-Want automated follow-ups, review monitoring, and monthly reporting?
+────────────────────────────────────────
+\u{1F50D} FLOW REVIEWER — $19.95/mo (billed separately)
+────────────────────────────────────────
+• Review and approve your monthly bookkeeping entries
+• Flag items or leave notes for your bookkeeper
+• Spending summaries, trends & category breakdowns
+• Approve reports right from your phone
+• Direct messaging with the Flow team
 
-Flow Reviewer — $49/month
-${paymentLink}
-──────────────────────────────────────
+────────────────────────────────────────
+Subscribe to one or both — separate subscriptions, cancel anytime:
+${subscribeUrl}
+────────────────────────────────────────
 
-Questions? Just reply to this email.
+These apps do NOT affect your Flow Bookkeeping Services billing.
+They are completely separate charges on your card.
 
-— Karen
-Flow Bookkeeping Services
+Questions? Reply to this email anytime.
+
+Talk soon,
+Karen Cotton
+Flow Bookkeeping Services · Charleston, SC
+karen@flowbookkeepingservices.com
 `;
 }
 
