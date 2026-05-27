@@ -13,8 +13,21 @@
     { "src": "/api/review-config",      "dest": "/api/review-config.js" },
     { "src": "/api/review-submit",      "dest": "/api/review-submit.js" },
     { "src": "/api/dashboard-data",     "dest": "/api/dashboard-data.js" },
+    { "src": "/api/metrics",            "dest": "/api/metrics.js" },
+    { "src": "/api/daily-brief",        "dest": "/api/daily-brief.js" },
     { "src": "/review/(.*)",            "dest": "/review.html" },
     { "src": "/data/(.*)",              "dest": "/data/$1" },
     { "src": "/(.*)",                   "dest": "/index.html" }
-  ]
+  ],
+  "env": {
+    "FLOW_REVIEWER_SHARED_SECRET": "@flow_reviewer_shared_secret",
+    "SUPABASE_URL":                "@supabase_url",
+    "SUPABASE_SERVICE_KEY":        "@supabase_service_key",
+    "RESEND_API_KEY":              "@resend_api_key",
+    "FROM_EMAIL":                  "@from_email",
+    "SITE_URL":                    "@site_url",
+    "STRIPE_SECRET_KEY":           "@stripe_secret_key",
+    "STRIPE_WEBHOOK_SECRET":       "@stripe_webhook_secret",
+    "STRIPE_PAYMENT_LINK":         "@stripe_payment_link"
+  }
 }
