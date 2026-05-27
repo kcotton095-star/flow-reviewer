@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Set Up Your Apps — Flow Bookkeeping Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f6f9;--surface:#ffffff;--surface-2:#f8fafc;--surface-offset:#eef1f6;
+  --divider:#d0d6e4;--border:#c4ccdc;
+  --text:#1a1f2e;--text-muted:#5a6278;--text-faint:#9aa0b4;
+  --primary:#015f6b;--primary-h:#014a54;--primary-hl:#c8dfe3;
+  --success:#2d7a3a;--success-hl:#d0ecd4;
+  --purple:#5e35b1;--purple-hl:#e3d9f9;
+  --shadow-md:0 4px 16px rgba(0,0,0,.10);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.14);
+  --font:'DM Sans',system-ui,sans-serif;
+  --r-md:.5rem;--r-lg:.75rem;--r-xl:1rem;--r-full:9999px;
+}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{min-height:100dvh;font-family:var(--font);font-size:1rem;color:var(--text);background:var(--bg);line-height:1.6}
+img,svg{display:block;max-width:100%}
+button,a{cursor:pointer;transition:all 180ms ease;text-decoration:none}
+:focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:var(--r-md)}
+.header{background:var(--surface);border-bottom:1px solid var(--divider);padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem}
+.logo-mark{width:36px;height:36px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-name{font-size:.9rem;font-weight:700;color:var(--text);letter-spacing:-.01em}
+.logo-sub{font-size:.75rem;color:var(--text-muted)}
+.hero{text-align:center;padding:3.5rem 1.5rem 2rem;max-width:600px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--primary-hl);color:var(--primary);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.35rem .75rem;border-radius:var(--r-full);margin-bottom:1.25rem}
+.hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;color:var(--text);line-height:1.15;margin-bottom:.75rem;letter-spacing:-.02em}
+.hero p{font-size:1rem;color:var(--text-muted);max-width:52ch;margin:0 auto 1.5rem}
+.billing-note{display:inline-flex;align-items:center;gap:.4rem;background:#fff;border:1px solid var(--border);border-radius:var(--r-full);padding:.35rem 1rem;font-size:.8rem;color:var(--text-muted);font-weight:500}
+.cards-wrap{max-width:900px;margin:0 auto;padding:0 1.5rem 2rem}
+.cards-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+@media(max-width:660px){.cards-row{grid-template-columns:1fr}}
+.pcard{background:var(--surface);border:1.5px solid var(--border);border-radius:1.25rem;padding:2rem 1.75rem;box-shadow:var(--shadow-md);position:relative;display:flex;flex-direction:column;transition:box-shadow 200ms,transform 200ms}
+.pcard:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.pcard.featured{border-color:var(--primary);box-shadow:0 6px 24px rgba(1,95,107,.18)}
+.pcard.featured:hover{box-shadow:0 10px 36px rgba(1,95,107,.24)}
+.popular-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.3rem .85rem;border-radius:var(--r-full);white-space:nowrap}
+.card-icon{width:44px;height:44px;border-radius:.75rem;display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;font-size:1.4rem}
+.card-icon.teal{background:var(--primary-hl)}
+.card-icon.purple{background:var(--purple-hl)}
+.card-name{font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:.3rem;letter-spacing:-.01em}
+.card-tagline{font-size:.875rem;color:var(--text-muted);margin-bottom:1.5rem}
+.price-row{display:flex;align-items:baseline;gap:.2rem;margin-bottom:.25rem}
+.price-amount{font-size:2.75rem;font-weight:800;color:var(--text);letter-spacing:-.03em;line-height:1}
+.price-cents{font-size:1.4rem;font-weight:700;color:var(--text)}
+.price-period{font-size:.875rem;color:var(--text-muted)}
+.price-sub{font-size:.78rem;color:var(--text-faint);margin-bottom:1.5rem}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:.55rem;margin-bottom:2rem;flex:1}
+.feat-list li{display:flex;align-items:flex-start;gap:.6rem;font-size:.875rem;color:var(--text-muted)}
+.feat-list li::before{content:'';width:16px;height:16px;min-width:16px;background:var(--success-hl);border-radius:50%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%232d7a3a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;margin-top:2px}
+.btn-subscribe{display:block;width:100%;padding:.875rem 1.25rem;border-radius:var(--r-lg);font-size:.95rem;font-weight:700;text-align:center;letter-spacing:-.01em;border:none;cursor:pointer}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-h)}
+.btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+.btn-outline:hover{background:var(--primary-hl)}
+.bundle{background:linear-gradient(135deg,var(--primary) 0%,#014a54 100%);border-radius:1.25rem;padding:2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;color:#fff;margin-bottom:1.25rem}
+@media(max-width:600px){.bundle{flex-direction:column;padding:1.5rem}}
+.bundle-left h3{font-size:1.25rem;font-weight:800;margin-bottom:.4rem;letter-spacing:-.01em}
+.bundle-left p{font-size:.875rem;opacity:.85;max-width:42ch}
+.bundle-right{flex-shrink:0;text-align:center}
+.bundle-price-amt{font-size:2.5rem;font-weight:800;line-height:1;letter-spacing:-.03em}
+.bundle-price-per{font-size:.8rem;opacity:.8;margin-bottom:.25rem}
+.bundle-save{font-size:.75rem;background:rgba(255,255,255,.15);border-radius:var(--r-full);padding:.25rem .65rem;display:inline-block;margin-bottom:1rem}
+.btn-bundle{background:#fff;color:var(--primary);border:none;border-radius:var(--r-lg);padding:.875rem 1.75rem;font-size:.95rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-bundle:hover{background:rgba(255,255,255,.9)}
+.trust{max-width:900px;margin:0 auto;padding:0 1.5rem 1.5rem}
+.trust-row{display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap;padding:1.25rem 1.5rem;background:var(--surface);border-radius:var(--r-xl);border:1px solid var(--divider)}
+.trust-item{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-muted);font-weight:500}
+.trust-icon{color:var(--success)}
+.faq{max-width:680px;margin:0 auto;padding:2rem 1.5rem 3rem}
+.faq h2{font-size:1.35rem;font-weight:800;text-align:center;margin-bottom:1.5rem;color:var(--text)}
+.faq-item{background:var(--surface);border:1px solid var(--divider);border-radius:var(--r-lg);padding:1.1rem 1.25rem;margin-bottom:.625rem}
+.faq-q{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:.4rem}
+.faq-a{font-size:.875rem;color:var(--text-muted)}
+.footer{text-align:center;padding:1.5rem;border-top:1px solid var(--divider);font-size:.8rem;color:var(--text-faint)}
+.footer a{color:var(--primary);font-weight:500}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:1.25rem;padding:2rem;max-width:480px;width:100%;box-shadow:var(--shadow-lg)}
+.modal h3{font-size:1.2rem;font-weight:800;margin-bottom:.5rem}
+.modal p{font-size:.875rem;color:var(--text-muted);margin-bottom:1.25rem}
+.modal-btns{display:flex;flex-direction:column;gap:.625rem}
+.modal-btn{display:block;padding:.875rem 1.25rem;border-radius:var(--r-lg);font-size:.9rem;font-weight:700;text-align:center;border:none;cursor:pointer}
+.modal-btn.primary{background:var(--primary);color:#fff}
+.modal-btn.primary:hover{background:var(--primary-h)}
+.modal-btn.secondary{background:var(--surface-offset);color:var(--text)}
+.modal-btn.secondary:hover{background:var(--divider)}
+.modal-close{float:right;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);margin-top:-4px}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="logo-mark">
+    <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+      <path d="M8 10h10a6 6 0 0 1 0 12H8" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M8 16h8" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+    </svg>
+  </div>
+  <div>
+    <div class="logo-name">Flow Bookkeeping Services</div>
+    <div class="logo-sub">Charleston, SC</div>
+  </div>
+</header>
+<section class="hero">
+  <div class="hero-badge">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    Flow Client Exclusive
+  </div>
+  <h1>Two tools that make bookkeeping completely hands-off</h1>
+  <p>Optional add-ons for Flow clients. Each $19.95/month, billed completely separately from your bookkeeping service. Cancel anytime, no contracts.</p>
+  <div class="billing-note">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    100% separate from your Flow Bookkeeping billing
+  </div>
+</section>
+<div class="cards-wrap">
+  <div class="cards-row">
+    <div class="pcard">
+      <div class="card-icon teal">&#x1F4F8;</div>
+      <div class="card-name">Flow Receipt Capture</div>
+      <div class="card-tagline">Phone photos &rarr; your Dropbox, automatically</div>
+      <div class="price-row"><span class="price-amount">$19</span><span class="price-cents">.95</span></div>
+      <div class="price-sub">per month &middot; autopay &middot; cancel anytime</div>
+      <ul class="feat-list">
+        <li>Unlimited receipt captures from your phone</li>
+        <li>AI reads, categorizes &amp; names every receipt</li>
+        <li>Auto-uploads to your Dropbox bookkeeping folder</li>
+        <li>Duplicate detection &amp; missing info alerts</li>
+        <li>Monthly spending insights &amp; category trends</li>
+        <li>iOS &amp; Android</li>
+        <li>Billed separately &mdash; never mixed with bookkeeping</li>
+      </ul>
+      <button class="btn-subscribe btn-outline" onclick="openModal('receipt')">Subscribe to Receipt Capture &rarr;</button>
+    </div>
+    <div class="pcard featured">
+      <div class="popular-badge">Most Popular</div>
+      <div class="card-icon purple">&#x1F50D;</div>
+      <div class="card-name">Flow Reviewer</div>
+      <div class="card-tagline">Review &amp; approve your books from your phone</div>
+      <div class="price-row"><span class="price-amount">$19</span><span class="price-cents">.95</span></div>
+      <div class="price-sub">per month &middot; autopay &middot; cancel anytime</div>
+      <ul class="feat-list">
+        <li>Monthly bookkeeping review &amp; approval</li>
+        <li>Flag items &amp; leave notes for your bookkeeper</li>
+        <li>Spending summaries, trends &amp; category breakdowns</li>
+        <li>Approve reports right from your phone</li>
+        <li>Direct messaging with the Flow team</li>
+        <li>iOS &amp; Android</li>
+        <li>Billed separately &mdash; never mixed with bookkeeping</li>
+      </ul>
+      <button class="btn-subscribe btn-primary" onclick="openModal('reviewer')">Subscribe to Flow Reviewer &rarr;</button>
+    </div>
+  </div>
+  <div class="bundle">
+    <div class="bundle-left">
+      <h3>Get Both &mdash; Complete Toolkit</h3>
+      <p>Receipt capture + monthly review. Two separate subscriptions, each at $19.95/mo &mdash; cancel either one independently at any time.</p>
+    </div>
+    <div class="bundle-right">
+      <div class="bundle-price-amt">$39<span style="font-size:1.5rem">.90</span></div>
+      <div class="bundle-price-per">/month total</div>
+      <div class="bundle-save">2 separate $19.95 subscriptions</div>
+      <button class="btn-bundle" onclick="openModal('both')">Subscribe to Both &rarr;</button>
+    </div>
+  </div>
+  <div class="trust">
+    <div class="trust-row">
+      <div class="trust-item"><svg class="trust-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>No contracts</div>
+      <div class="trust-item"><svg class="trust-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Cancel anytime</div>
+      <div class="trust-item"><svg class="trust-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Secure checkout via Stripe</div>
+      <div class="trust-item"><svg class="trust-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Separate from bookkeeping billing</div>
+    </div>
+  </div>
+</div>
+<div class="faq">
+  <h2>Common Questions</h2>
+  <div class="faq-item">
+    <div class="faq-q">Will this show up on the same charge as my bookkeeping fee?</div>
+    <div class="faq-a">No. The apps are completely separate subscriptions billed independently by Stripe. They will appear as distinct charges on your card &mdash; never bundled with your bookkeeping invoice.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Do I have to subscribe to both?</div>
+    <div class="faq-a">Not at all. You can subscribe to just one app, or both. Each is month-to-month and you cancel either independently at any time with no penalty.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">How does Flow Receipt Capture get receipts into my Dropbox?</div>
+    <div class="faq-a">During onboarding you'll connect your Dropbox account once. After that, every receipt you snap is processed by AI and placed in your Flow Bookkeeping folder automatically.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Can I cancel if I change my mind?</div>
+    <div class="faq-a">Yes &mdash; cancel any app subscription any time from your Stripe billing portal. You'll retain access through the end of the current billing period. No cancellation fees, ever.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Is my payment information secure?</div>
+    <div class="faq-a">Checkout is handled entirely by Stripe, the same payment infrastructure used by companies like Amazon and Shopify. We never see or store your card number.</div>
+  </div>
+</div>
+<footer class="footer">
+  Flow Bookkeeping Services &middot; Charleston, SC &middot; <a href="mailto:karen@flowbookkeepingservices.com">karen@flowbookkeepingservices.com</a>
+  <br style="margin-bottom:.4rem">
+  <a href="/">Home</a> &middot; <a href="/review">Client Portal</a>
+</footer>
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:.75rem">
+      <div>
+        <h3 id="modal-title">Subscribe</h3>
+        <p id="modal-desc" style="margin-bottom:0;font-size:.85rem;color:var(--text-muted)"></p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-btns" id="modal-btns"></div>
+    <p style="font-size:.75rem;color:var(--text-faint);text-align:center;margin-top:1rem">Powered by Stripe &middot; Secure checkout</p>
+  </div>
+</div>
+<script>
+const STRIPE_LINKS = {
+  receipt:  'https://buy.stripe.com/REPLACE_RECEIPT_CAPTURE_LINK',
+  reviewer: 'https://buy.stripe.com/REPLACE_FLOW_REVIEWER_LINK'
+};
+function getEmail() {
+  return new URLSearchParams(window.location.search).get('email') || '';
+}
+function buildLink(product) {
+  const email = getEmail();
+  const base = STRIPE_LINKS[product];
+  return email ? base + '?prefilled_email=' + encodeURIComponent(email) : base;
+}
+function openModal(type) {
+  const overlay = document.getElementById('modal');
+  const title   = document.getElementById('modal-title');
+  const desc    = document.getElementById('modal-desc');
+  const btns    = document.getElementById('modal-btns');
+  if (type === 'receipt') {
+    title.textContent = String.fromCodePoint(0x1F4F8) + ' Flow Receipt Capture';
+    desc.textContent  = '$19.95/month · autopay · cancel anytime · billed separately';
+    btns.innerHTML = '<a href="' + buildLink('receipt') + '" target="_blank" class="modal-btn primary">Continue to Stripe Checkout →</a><button class="modal-btn secondary" onclick="closeModal()">Maybe later</button>';
+  } else if (type === 'reviewer') {
+    title.textContent = String.fromCodePoint(0x1F50D) + ' Flow Reviewer';
+    desc.textContent  = '$19.95/month · autopay · cancel anytime · billed separately';
+    btns.innerHTML = '<a href="' + buildLink('reviewer') + '" target="_blank" class="modal-btn primary">Continue to Stripe Checkout →</a><button class="modal-btn secondary" onclick="closeModal()">Maybe later</button>';
+  } else if (type === 'both') {
+    title.textContent = 'Subscribe to Both Apps';
+    desc.textContent  = 'Two separate $19.95/mo subscriptions — cancel either independently';
+    btns.innerHTML = '<a href="' + buildLink('receipt') + '" target="_blank" class="modal-btn primary">1. Subscribe to Receipt Capture ($19.95/mo) →</a><a href="' + buildLink('reviewer') + '" target="_blank" class="modal-btn primary" style="background:var(--purple)">2. Subscribe to Flow Reviewer ($19.95/mo) →</a><button class="modal-btn secondary" onclick="closeModal()">Cancel</button>';
+  }
+  overlay.classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+(function() {
+  const firstName = new URLSearchParams(window.location.search).get('name');
+  if (firstName) {
+    document.querySelector('.hero h1').textContent = 'Hi ' + firstName + ' — here are your two Flow add-on apps';
+  }
+})();
+</script>
+</body>
+  </html>
