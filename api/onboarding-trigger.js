@@ -21,6 +21,10 @@
 const { getDb, logWebhookEvent } = require('./_db');
 const { sendUpsellOffer }        = require('./_send-upsell-offer');
 
+const KAREN_EMAIL  = 'Karencotton26@yahoo.com';
+const FROM_EMAIL   = process.env.FROM_EMAIL || 'hello@flowbookkeepingservices.com';
+const MONTHLY_AMOUNT = 19.95;
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -29,7 +33,7 @@ module.exports = async function handler(req, res) {
   // ── Shared secret validation ──────────────────────────────────────────────
   const incomingSecret =
     req.headers['x-flow-reviewer-secret'] ||
-    req.headers['x-shared-secret'] ||
+    req.headers['x-shared-secret']         ||
     req.body?.shared_secret;
 
   const expectedSecret = process.env.FLOW_REVIEWER_SHARED_SECRET;
@@ -76,15 +80,15 @@ module.exports = async function handler(req, res) {
   const clientRecord = {
     name:                    client_name,
     email:                   client_email,
-    phone:                   client_phone  || null,
-    sector:                  service_type  || 'Service business',
+    phone:                   client_phone || null,
+    sector:                  service_type || 'Service business',
     onboarding_status:       'Completed',
     onboarding_completed_at: onboarding_completed_at || new Date().toISOString(),
     financial_cents_id:      financial_cents_client_id || null,
     offer_eligible:          true,
     offer_status:            'Queued',
     subscription_status:     'Not Subscribed',
-    monthly_amount:          49,
+    monthly_amount:          MONTHLY_AMOUNT,
     review_link_url:         `/review/${slug}`,
     business_name:           client_name,
     business_slug:           slug,
@@ -110,28 +114,56 @@ module.exports = async function handler(req, res) {
   await logWebhookEvent(db, 'financial_cents.onboarding_completed', client_email,
     'Processed', 'Client upserted, offer queued', body);
 
-  // ── Send upsell offer email ───────────────────────────────────────────────
+  // ── Send upsell offer email to client ─────────────────────────────────────
+  let offerStatus = 'Queued';
   try {
     await sendUpsellOffer({ client: upserted });
     await db
       .from('clients')
       .update({
-        offer_status:  'Sent',
-        offer_sent_at: new Date().toISOString(),
-        offer_channel: 'Email',
+        offer_status:    'Sent',
+        offer_sent_at:   new Date().toISOString(),
+        offer_channel:   'Email',
       })
       .eq('email', client_email);
+    offerStatus = 'Sent';
   } catch (emailErr) {
-    // Non-fatal: log but return 200 so Zapier doesn't retry
     console.error('[onboarding-trigger] Failed to send upsell offer:', emailErr.message);
     await logWebhookEvent(db, 'financial_cents.offer_email', client_email,
       'Failed', emailErr.message, {});
   }
 
+  // ── Alert Karen that a new client completed onboarding ────────────────────
+  try {
+    const { Resend } = require('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from:    `Flow Reviewer <${FROM_EMAIL}>`,
+      to:      [KAREN_EMAIL],
+      subject: `📋 New onboarding: ${client_name} — offer email sent`,
+      html:    `
+        <div style="font-family:sans-serif;max-width:480px;margin:16px auto;padding:20px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;">
+          <h2 style="color:#0d9488;margin-top:0;">📋 New Client Onboarded</h2>
+          <p><strong>Name:</strong> ${client_name}<br>
+          <strong>Email:</strong> ${client_email}<br>
+          <strong>Service:</strong> ${service_type || 'Bookkeeping'}<br>
+          <strong>FC ID:</strong> ${financial_cents_client_id || '—'}</p>
+          <p style="color:#64748b;font-size:13px;">
+            Offer status: <strong>${offerStatus}</strong><br>
+            Monthly amount: <strong>$${MONTHLY_AMOUNT}/month</strong><br>
+            Review link: <code>/review/${slug}</code>
+          </p>
+          <a href="https://flow-reviewer-hh88.vercel.app/admin" style="background:#0d9488;color:white;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;display:inline-block;margin-top:8px;">View in Admin</a>
+        </div>`,
+    });
+  } catch (karenEmailErr) {
+    console.error('[onboarding-trigger] Failed to alert Karen:', karenEmailErr.message);
+  }
+
   return res.status(200).json({
-    success:     true,
-    message:     'Onboarding event processed.',
-    client:      client_name,
-    offerStatus: 'Sent',
+    success: true,
+    message: 'Onboarding event processed.',
+    client:  client_name,
+    offerStatus,
   });
 };
