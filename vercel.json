@@ -1,11 +1,12 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/*.js",    "use": "@vercel/node" },
-    { "src": "index.html",  "use": "@vercel/static" },
-    { "src": "review.html", "use": "@vercel/static" },
-    { "src": "favicon.svg", "use": "@vercel/static" },
-    { "src": "data/*.json", "use": "@vercel/static" }
+    { "src": "api/*.js",       "use": "@vercel/node" },
+    { "src": "index.html",     "use": "@vercel/static" },
+    { "src": "review.html",    "use": "@vercel/static" },
+    { "src": "subscribe.html", "use": "@vercel/static" },
+    { "src": "favicon.svg",    "use": "@vercel/static" },
+    { "src": "data/*.json",    "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/onboarding-trigger", "dest": "/api/onboarding-trigger.js" },
@@ -15,6 +16,8 @@
     { "src": "/api/dashboard-data",     "dest": "/api/dashboard-data.js" },
     { "src": "/api/metrics",            "dest": "/api/metrics.js" },
     { "src": "/api/daily-brief",        "dest": "/api/daily-brief.js" },
+    { "src": "/api/new-client",         "dest": "/api/new-client.js" },
+    { "src": "/subscribe",              "dest": "/subscribe.html" },
     { "src": "/review/(.*)",            "dest": "/review.html" },
     { "src": "/data/(.*)",              "dest": "/data/$1" },
     { "src": "/(.*)",                   "dest": "/index.html" }
