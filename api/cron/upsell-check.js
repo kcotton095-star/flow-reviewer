@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
       .from('clients')
       .select('*')
       .eq('offer_status', 'Queued')
-      .lt('onboarded_at', twoHoursAgo);
+      .lt('onboarding_completed_at', twoHoursAgo);
 
     if (error) throw error;
     let processed = 0;
