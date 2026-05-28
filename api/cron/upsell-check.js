@@ -1,42 +1,57 @@
 // api/cron/upsell-check.js
-// Runs every 15 min via cron-job.org
+// Called every 15 min by cron-job.org
+// Finds clients with offer_status="Queued" onboarded 2+ hours ago, sends upsell email
 
-const { createClient } = require('@supabase/supabase-js');
-const { Resend } = require('resend');
-const sendUpsellOffer = require('../_send-upsell-offer');
-
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
-const resend = new Resend(process.env.RESEND_API_KEY);
+const { getDb } = require('../_db');
+const { sendUpsellOffer } = require('../_send-upsell-offer');
 
 module.exports = async (req, res) => {
+  // Auth check
   const secret = req.headers['x-cron-secret'];
   if (secret !== process.env.CRON_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+
   try {
+    const db = getDb();
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
-    const { data: clients, error } = await supabase
-      .from('clients').select('*')
-      .eq('offer_status', 'Queued').lt('onboarded_at', twoHoursAgo);
+
+    const { data: clients, error } = await db
+      .from('clients')
+      .select('*')
+      .eq('offer_status', 'Queued')
+      .lt('onboarded_at', twoHoursAgo);
+
     if (error) throw error;
     let processed = 0;
+
     for (const client of clients || []) {
       try {
-        await sendUpsellOffer({ client, resend });
-        await supabase.from('clients')
+        await sendUpsellOffer({ client });
+
+        await db
+          .from('clients')
           .update({ offer_status: 'Sent', offer_sent_at: new Date().toISOString() })
           .eq('id', client.id);
+
+        const { Resend } = require('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
           from: 'Flow Bookkeeping Services <hello@flowbookkeepingservices.com>',
           to: 'Karencotton26@yahoo.com',
           subject: 'Upsell offer sent to ' + client.name,
           html: '<p>Upsell email sent to <strong>' + client.name + '</strong> (' + client.email + ').</p>'
         });
+
         processed++;
-      } catch (e) { console.error('client error', e); }
+      } catch (e) {
+        console.error('[upsell-check] Error processing client', client.id, e.message);
+      }
     }
+
     return res.status(200).json({ ok: true, processed });
   } catch (err) {
+    console.error('[upsell-check] Fatal error:', err.message);
     return res.status(500).json({ error: err.message });
   }
 };
