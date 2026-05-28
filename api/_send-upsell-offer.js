@@ -15,14 +15,14 @@
  *
  * Required env vars:
  *   RESEND_API_KEY        — resend.com API key
- *   FROM_EMAIL            — "Karen Cotton <karen@flowbookkeepingservices.com>"
+ *   FROM_EMAIL            — "Flow Bookkeeping Services <hello@flowbookkeepingservices.com>"
  *   SITE_URL              — "https://flow-reviewer-hh88.vercel.app"
  */
 
 const { Resend } = require('resend');
 
 const SITE_URL       = process.env.SITE_URL  || 'https://flow-reviewer-hh88.vercel.app';
-const FROM_EMAIL     = process.env.FROM_EMAIL || 'Karen Cotton <karen@flowbookkeepingservices.com>';
+const FROM_EMAIL     = process.env.FROM_EMAIL || 'Flow Bookkeeping Services <hello@flowbookkeepingservices.com>';
 const SUBSCRIBE_PAGE = `${SITE_URL}/subscribe`;
 
 /**
@@ -169,7 +169,7 @@ function buildEmailHtml({ firstName, companyName, subscribeUrl }) {
   </div>
 
   <div class="foot">
-    Flow Bookkeeping Services &middot; Charleston, SC &middot; <a href="mailto:karen@flowbookkeepingservices.com">karen@flowbookkeepingservices.com</a><br>
+    Flow Bookkeeping Services &middot; Charleston, SC &middot; <a href="mailto:hello@flowbookkeepingservices.com">hello@flowbookkeepingservices.com</a><br>
     You're receiving this because you're a new Flow Bookkeeping Services client.
   </div>
 </div>
@@ -218,7 +218,7 @@ Questions? Reply to this email anytime.
 Talk soon,
 Karen Cotton
 Flow Bookkeeping Services · Charleston, SC
-karen@flowbookkeepingservices.com
+hello@flowbookkeepingservices.com
 `;
 }
 
