@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flow Bookkeeping Services — Client Portal</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --teal: #0d9488;
+  --teal-dark: #0f766e;
+  --teal-light: #ccfbf1;
+  --navy: #0f172a;
+  --bg: #f0fdf9;
+  --card: #ffffff;
+  --border: #d1fae5;
+  --text: #0f172a;
+  --muted: #64748b;
+  --grad: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  background: var(--grad);
+  padding: 18px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-logo { display: flex; align-items: center; gap: 12px; }
+.header-logo .logo-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.header-logo h1 { color: #fff; font-size: 18px; font-weight: 700; line-height: 1.2; }
+.header-logo p { color: rgba(255,255,255,0.75); font-size: 12px; }
+.header-contact { color: rgba(255,255,255,0.85); font-size: 13px; }
+.header-contact a { color: #fff; text-decoration: none; font-weight: 600; }
+
+/* ── Layout ── */
+.layout { display: flex; max-width: 1200px; margin: 0 auto; padding: 28px 24px; gap: 24px; }
+.sidebar { width: 240px; flex-shrink: 0; }
+.main { flex: 1; min-width: 0; }
+
+/* ── Nav ── */
+.nav-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden; margin-bottom: 16px;
+}
+.nav-label {
+  padding: 10px 16px;
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.6px;
+  border-bottom: 1px solid var(--border);
+  background: #f8fffe;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px; font-size: 13px; font-weight: 500;
+  color: var(--muted); cursor: pointer; transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { color: var(--teal); background: #f0fdf9; }
+.nav-item.active { color: var(--teal); background: var(--teal-light); border-left-color: var(--teal); font-weight: 600; }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+.help-card {
+  background: var(--grad); border-radius: 14px; padding: 20px;
+  color: #fff;
+}
+.help-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.help-card p { font-size: 12px; opacity: 0.85; margin-bottom: 14px; line-height: 1.5; }
+.help-btn {
+  display: block; background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 8px; padding: 9px 14px;
+  color: #fff; font-size: 13px; font-weight: 600;
+  text-align: center; cursor: pointer; text-decoration: none;
+  transition: background 0.15s;
+}
+.help-btn:hover { background: rgba(255,255,255,0.3); }
+
+/* ── Cards ── */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px; margin-bottom: 20px;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.card-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+.card-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ── Status banner ── */
+.status-banner {
+  background: linear-gradient(135deg, #f0fdf9, #ecfdf5);
+  border: 1.5px solid #6ee7b7; border-radius: 12px;
+  padding: 18px 20px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.status-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #10b981; flex-shrink: 0;
+  box-shadow: 0 0 0 4px rgba(16,185,129,0.2);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 4px rgba(16,185,129,0.2); }
+  50% { box-shadow: 0 0 0 8px rgba(16,185,129,0.1); }
+}
+.status-text h3 { font-size: 14px; font-weight: 700; color: #065f46; }
+.status-text p { font-size: 12px; color: #047857; margin-top: 2px; }
+
+/* ── Month status grid ── */
+.month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.month-card {
+  background: #f8fffe; border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 16px; text-align: center;
+}
+.month-card.done { border-color: #6ee7b7; background: #f0fdf9; }
+.month-card.in-progress { border-color: #fcd34d; background: #fffbeb; }
+.month-card.pending { border-color: #e2e8f0; background: #f8fafc; }
+.month-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.month-status { font-size: 13px; font-weight: 700; }
+.month-card.done .month-status { color: #065f46; }
+.month-card.in-progress .month-status { color: #92400e; }
+.month-card.pending .month-status { color: #94a3b8; }
+.month-icon { font-size: 20px; margin-bottom: 6px; }
+
+/* ── AI Chat ── */
+.chat-area {
+  height: 340px; background: #f8fffe; border: 1.5px solid var(--border);
+  border-radius: 12px; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 14px;
+}
+.msg { display: flex; gap: 10px; align-items: flex-start; }
+.msg.user { flex-direction: row-reverse; }
+.msg-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.msg.bot .msg-avatar { background: var(--teal-light); }
+.msg.user .msg-avatar { background: #ede9fe; }
+.msg-bubble {
+  max-width: 80%; padding: 10px 14px; border-radius: 14px;
+  font-size: 13px; line-height: 1.5;
+}
+.msg.bot .msg-bubble { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 4px 14px 14px 14px; }
+.msg.user .msg-bubble { background: var(--teal); color: #fff; border-radius: 14px 4px 14px 14px; }
+.msg-time { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+.chat-input-row { display: flex; gap: 10px; }
+.chat-input {
+  flex: 1; border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 10px 14px; font-size: 14px; font-family: inherit;
+  background: #fff; transition: border-color 0.2s; resize: none;
+  height: 44px; overflow: hidden;
+}
+.chat-input:focus { outline: none; border-color: var(--teal); }
+.send-btn {
+  background: var(--teal); color: #fff; border: none;
+  border-radius: 10px; padding: 10px 18px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: background 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.send-btn:hover { background: var(--teal-dark); }
+.send-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+
+/* ── Quick prompts ── */
+.quick-prompts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.quick-prompt {
+  background: var(--teal-light); color: var(--teal-dark);
+  border: 1px solid #a7f3d0; border-radius: 20px;
+  padding: 5px 12px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.quick-prompt:hover { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+/* ── Upload ── */
+.upload-zone {
+  border: 2px dashed #a7f3d0; border-radius: 12px;
+  padding: 32px; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: #f8fffe;
+}
+.upload-zone:hover { border-color: var(--teal); background: var(--teal-light); }
+.upload-icon { font-size: 36px; margin-bottom: 10px; }
+.upload-zone h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.upload-zone p { font-size: 12px; color: var(--muted); }
+.upload-types { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.upload-type-tag {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; padding: 3px 8px; font-size: 11px;
+  font-weight: 600; color: var(--muted); font-family: monospace;
+}
+#file-input { display: none; }
+
+/* ── Reports list ── */
+.report-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 0; border-bottom: 1px solid #f0fdf9;
+}
+.report-item:last-child { border-bottom: none; }
+.report-info { display: flex; align-items: center; gap: 12px; }
+.report-icon { font-size: 24px; }
+.report-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+.report-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.report-badge {
+  padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.badge-ready { background: #d1fae5; color: #065f46; }
+.badge-pending { background: #fef3c7; color: #92400e; }
+
+/* ── Page visibility ── */
+.page { display: none; }
+.page.active { display: block; }
+
+@media (max-width: 768px) {
+  .layout { flex-direction: column; padding: 16px; }
+  .sidebar { width: 100%; }
+  .month-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">
+    <div class="logo-icon">📊</div>
+    <div>
+      <h1>Flow Bookkeeping Services</h1>
+      <p>Client Portal — Charleston, SC</p>
+    </div>
+  </div>
+  <div class="header-contact">
+    Questions? <a href="mailto:hello@flowbookkeepingservices.com">hello@flowbookkeepingservices.com</a>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="nav-card">
+      <div class="nav-label">Portal</div>
+      <div class="nav-item active" onclick="showPage('status')" data-page="status">
+        <span class="nav-icon">📊</span> Status
+      </div>
+      <div class="nav-item" onclick="showPage('chat')" data-page="chat">
+        <span class="nav-icon">💬</span> Ask a question
+      </div>
+      <div class="nav-item" onclick="showPage('upload')" data-page="upload">
+        <span class="nav-icon">📤</span> Send documents
+      </div>
+      <div class="nav-item" onclick="showPage('reports')" data-page="reports">
+        <span class="nav-icon">📄</span> Reports
+      </div>
+    </div>
+    <div class="help-card">
+      <h3>Need help?</h3>
+      <p>Karen and the team are here for you. Reach out anytime.</p>
+      <a href="mailto:hello@flowbookkeepingservices.com" class="help-btn">📧 Email us</a>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- Status page -->
+    <div id="page-status" class="page active">
+      <div class="status-banner">
+        <div class="status-dot"></div>
+        <div class="status-text">
+          <h3>Your books are up to date</h3>
+          <p>Flow Bookkeeping Services is actively managing your account</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Monthly close status</div>
+            <div class="card-subtitle">Bookkeeping progress for recent periods</div>
+          </div>
+        </div>
+        <div class="month-grid">
+          <div class="month-card done">
+            <div class="month-icon">✅</div>
+            <div class="month-label">March 2026</div>
+            <div class="month-status">Complete</div>
+          </div>
+          <div class="month-card done">
+            <div class="month-icon">✅</div>
+            <div class="month-label">April 2026</div>
+            <div class="month-status">Complete</div>
+          </div>
+          <div class="month-card in-progress">
+            <div class="month-icon">⏳</div>
+            <div class="month-label">May 2026</div>
+            <div class="month-status">In progress</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">
+          May books will be finalized by the 15th of next month. You'll receive an email when they're ready to review.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Your subscription</div>
+        </div>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Plan</div>
+            <div style="font-size:15px;font-weight:700;color:var(--navy)">Flow Bookkeeping</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Status</div>
+            <span style="background:#d1fae5;color:#065f46;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">Active</span>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Support</div>
+            <div style="font-size:14px;font-weight:600;color:var(--navy)">hello@flowbookkeepingservices.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat page -->
+    <div id="page-chat" class="page">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">💬 Ask a bookkeeping question</div>
+            <div class="card-subtitle">Get instant answers about your finances, reports, or account</div>
+          </div>
+        </div>
+
+        <div class="quick-prompts" id="quick-prompts">
+          <span class="quick-prompt" onclick="sendQuick(this)">What's my current profit margin?</span>
+          <span class="quick-prompt" onclick="sendQuick(this)">Are my books up to date?</span>
+          <span class="quick-prompt" onclick="sendQuick(this)">When is my next report ready?</span>
+          <span class="quick-prompt" onclick="sendQuick(this)">How do I send documents?</span>
+          <span class="quick-prompt" onclick="sendQuick(this)">What's included in my plan?</span>
+        </div>
+
+        <div class="chat-area" id="chat-area">
+          <div class="msg bot">
+            <div class="msg-avatar">🤖</div>
+            <div>
+              <div class="msg-bubble">Hi! I'm the Flow Bookkeeping assistant. I can answer questions about your account, reports, and bookkeeping. What can I help you with today?</div>
+              <div class="msg-time">Now</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text" placeholder="Ask a question about your books…"
+            onkeydown="if(event.key==='Enter')sendMessage()">
+          <button class="send-btn" id="send-btn" onclick="sendMessage()">Send ↑</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload page -->
+    <div id="page-upload" class="page">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📤 Send documents to Flow</div>
+          <div class="card-subtitle">Securely share bank statements, receipts, or other documents</div>
+        </div>
+        <label for="file-input">
+          <div class="upload-zone" id="upload-zone">
+            <div class="upload-icon">📁</div>
+            <h3>Click to select files, or drag and drop</h3>
+            <p>Your documents go directly to the Flow team</p>
+            <div class="upload-types">
+              <span class="upload-type-tag">.pdf</span>
+              <span class="upload-type-tag">.xlsx</span>
+              <span class="upload-type-tag">.csv</span>
+              <span class="upload-type-tag">.png</span>
+              <span class="upload-type-tag">.jpg</span>
+            </div>
+          </div>
+        </label>
+        <input type="file" id="file-input" multiple accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg"
+          onchange="handleFiles(this.files)">
+        <div id="upload-status" style="margin-top:14px;display:none;">
+          <div style="background:#f0fdf9;border:1px solid #6ee7b7;border-radius:10px;padding:14px;font-size:13px;color:#065f46;">
+            ✅ Files selected — please email them to <strong>hello@flowbookkeepingservices.com</strong> with your business name in the subject line.
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:16px;">
+          💡 <strong>Tip:</strong> You can also email documents directly to
+          <a href="mailto:hello@flowbookkeepingservices.com" style="color:var(--teal);">hello@flowbookkeepingservices.com</a>
+          any time. Include your business name in the subject line.
+        </p>
+      </div>
+    </div>
+
+    <!-- Reports page -->
+    <div id="page-reports" class="page">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📄 Your reports</div>
+          <div class="card-subtitle">Financial reports prepared by Flow Bookkeeping Services</div>
+        </div>
+        <div class="report-item">
+          <div class="report-info">
+            <div class="report-icon">📊</div>
+            <div>
+              <div class="report-name">April 2026 — Profit & Loss</div>
+              <div class="report-meta">Delivered May 15, 2026</div>
+            </div>
+          </div>
+          <span class="report-badge badge-ready">Ready</span>
+        </div>
+        <div class="report-item">
+          <div class="report-info">
+            <div class="report-icon">📊</div>
+            <div>
+              <div class="report-name">March 2026 — Profit & Loss</div>
+              <div class="report-meta">Delivered April 15, 2026</div>
+            </div>
+          </div>
+          <span class="report-badge badge-ready">Ready</span>
+        </div>
+        <div class="report-item">
+          <div class="report-info">
+            <div class="report-icon">📊</div>
+            <div>
+              <div class="report-name">May 2026 — Profit & Loss</div>
+              <div class="report-meta">Estimated June 15, 2026</div>
+            </div>
+          </div>
+          <span class="report-badge badge-pending">In progress</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:16px;">
+          Reports are delivered via email each month. Contact us at
+          <a href="mailto:hello@flowbookkeepingservices.com" style="color:var(--teal);">hello@flowbookkeepingservices.com</a>
+          to request a specific report or QuickBooks export.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Navigation ────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelector('[data-page="' + name + '"]').classList.add('active');
+}
+
+// ── AI Chat ───────────────────────────────────────────────────────────────
+const FLOW_RESPONSES = {
+  default: [
+    "That's a great question! For specific details about your account, Karen at Flow Bookkeeping Services will have the most accurate answer. Email us at hello@flowbookkeepingservices.com.",
+    "I'd love to help with that. For account-specific details, please reach out to us at hello@flowbookkeepingservices.com and we'll get back to you within one business day.",
+    "Great question. Our team reviews all account inquiries personally — email hello@flowbookkeepingservices.com and Karen will follow up.",
+  ],
+  status: "Your books are currently up to date! May 2026 is in progress and will be finalized by June 15th. Let us know if you need anything sooner.",
+  report: "Your most recent report (April 2026 P&L) was delivered on May 15th. May's report is currently in progress — you'll receive it by mid-June. Need a QuickBooks export? Just email hello@flowbookkeepingservices.com.",
+  upload: "To send documents, you can use the 'Send documents' section in this portal, or email them directly to hello@flowbookkeepingservices.com. Include your business name in the subject line!",
+  plan: "Your Flow Bookkeeping plan includes monthly transaction categorization, account reconciliation, monthly Profit & Loss reports, and email support. Questions? hello@flowbookkeepingservices.com.",
+  profit: "For your exact profit margin, check the Profit & Loss report in the Reports section — or email hello@flowbookkeepingservices.com and we'll pull the numbers for you right away.",
+};
+
+function getResponse(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('status') || m.includes('up to date') || m.includes('current')) return FLOW_RESPONSES.status;
+  if (m.includes('report') || m.includes('p&l') || m.includes('profit and loss') || m.includes('ready')) return FLOW_RESPONSES.report;
+  if (m.includes('send') || m.includes('document') || m.includes('upload') || m.includes('file')) return FLOW_RESPONSES.upload;
+  if (m.includes('plan') || m.includes('include') || m.includes('subscription')) return FLOW_RESPONSES.plan;
+  if (m.includes('profit') || m.includes('margin') || m.includes('revenue')) return FLOW_RESPONSES.profit;
+  const arr = FLOW_RESPONSES.default;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function now() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function addMsg(text, role) {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `
+    <div class="msg-avatar">${role === 'bot' ? '🤖' : '👤'}</div>
+    <div>
+      <div class="msg-bubble">${esc(text)}</div>
+      <div class="msg-time">${now()}</div>
+    </div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  document.getElementById('quick-prompts').style.display = 'none';
+  addMsg(msg, 'user');
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  setTimeout(() => {
+    addMsg(getResponse(msg), 'bot');
+    btn.disabled = false;
+  }, 700 + Math.random() * 400);
+}
+
+function sendQuick(el) {
+  document.getElementById('chat-input').value = el.textContent;
+  sendMessage();
+}
+
+// ── File upload ───────────────────────────────────────────────────────────
+function handleFiles(files) {
+  if (files.length > 0) {
+    document.getElementById('upload-status').style.display = 'block';
+  }
+}
+
+// ── Drag & drop ───────────────────────────────────────────────────────────
+const zone = document.getElementById('upload-zone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--teal)'; });
+zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
+zong.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.style.borderColor = '';
+  handleFiles(e.dataTransfer.files);
+});
+</script>
+</body>
+</html>
