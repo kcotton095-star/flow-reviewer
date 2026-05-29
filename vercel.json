@@ -7,7 +7,9 @@
     { "src": "review.html",    "use": "@vercel/static" },
     { "src": "subscribe.html", "use": "@vercel/static" },
     { "src": "favicon.svg",    "use": "@vercel/static" },
-    { "src": "data/*.json",    "use": "@vercel/static" }
+    { "src": "data/*.json",    "use": "@vercel/static" },
+    { "src": "flow-portal.html",              "use": "@vercel/static" },
+    { "src": "flow-reviewer-dashboard.html",  "use": "@vercel/static" }
   ],
   "routes": [
     { "handle": "filesystem" },
@@ -23,6 +25,8 @@
     { "src": "/subscribe",              "dest": "/subscribe.html" },
     { "src": "/review/(.*)",            "dest": "/review.html" },
     { "src": "/data/(.*)",              "dest": "/data/$1" },
+    { "src": "/portal",         "dest": "/flow-portal.html" },
+    { "src": "/command-center", "dest": "/flow-reviewer-dashboard.html" },
     { "src": "/(.*)",                   "dest": "/index.html" }
   ]
 }
