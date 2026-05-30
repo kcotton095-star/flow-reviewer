@@ -1,5 +1,5 @@
 /**
- * Flow Reviewer — Onboarding Trigger Endpoint
+ * Flow Reviewer â Onboarding Trigger Endpoint
  * POST /api/onboarding-trigger
  *
  * Called by Zapier when a client completes onboarding in Financial Cents.
@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // ── Shared secret validation ──────────────────────────────────────────────
+  // ââ Shared secret validation ââââââââââââââââââââââââââââââââââââââââââââââ
   const incomingSecret =
     req.headers['x-flow-reviewer-secret'] ||
     req.headers['x-shared-secret']         ||
@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  // ── Payload validation ────────────────────────────────────────────────────
+  // ââ Payload validation ââââââââââââââââââââââââââââââââââââââââââââââââââââ
   const body = req.body || {};
   const {
     client_name,
@@ -68,13 +68,13 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: `Unknown event_type: ${event_type}` });
   }
 
-  // ── Build slug ────────────────────────────────────────────────────────────
+  // ââ Build slug ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   const slug = client_name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 
-  // ── Upsert client record ──────────────────────────────────────────────────
+  // ââ Upsert client record ââââââââââââââââââââââââââââââââââââââââââââââââââ
   const db = getDb();
 
   const clientRecord = {
@@ -106,7 +106,7 @@ module.exports = async function handler(req, res) {
     console.error('[onboarding-trigger] DB upsert failed:', upsertError.message);
     await logWebhookEvent(db, 'financial_cents.onboarding_completed', client_email,
       'Failed', `DB upsert error: ${upsertError.message}`, body);
-    return res.status(500).json({ error: 'Database error', detail: upsertError.message, code: upsertError.code, hint: upsertError.hint });
+    return res.status(500).json({ error: 'Database error' });
   }
 
   console.log('[onboarding-trigger] Client upserted:', { name: client_name, email: client_email });
@@ -114,7 +114,7 @@ module.exports = async function handler(req, res) {
   await logWebhookEvent(db, 'financial_cents.onboarding_completed', client_email,
     'Processed', 'Client upserted, offer queued', body);
 
-  // ── Send upsell offer email to client ─────────────────────────────────────
+  // ââ Send upsell offer email to client âââââââââââââââââââââââââââââââââââââ
   let offerStatus = 'Queued';
   try {
     await sendUpsellOffer({ client: upserted });
@@ -133,21 +133,21 @@ module.exports = async function handler(req, res) {
       'Failed', emailErr.message, {});
   }
 
-  // ── Alert Karen that a new client completed onboarding ────────────────────
+  // ââ Alert Karen that a new client completed onboarding ââââââââââââââââââââ
   try {
     const { Resend } = require('resend');
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
       from:    `Flow Reviewer <${FROM_EMAIL}>`,
       to:      [KAREN_EMAIL],
-      subject: `📋 New onboarding: ${client_name} — offer email sent`,
+      subject: `ð New onboarding: ${client_name} â offer email sent`,
       html:    `
         <div style="font-family:sans-serif;max-width:480px;margin:16px auto;padding:20px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;">
-          <h2 style="color:#0d9488;margin-top:0;">📋 New Client Onboarded</h2>
+          <h2 style="color:#0d9488;margin-top:0;">ð New Client Onboarded</h2>
           <p><strong>Name:</strong> ${client_name}<br>
           <strong>Email:</strong> ${client_email}<br>
           <strong>Service:</strong> ${service_type || 'Bookkeeping'}<br>
-          <strong>FC ID:</strong> ${financial_cents_client_id || '—'}</p>
+          <strong>FC ID:</strong> ${financial_cents_client_id || 'â'}</p>
           <p style="color:#64748b;font-size:13px;">
             Offer status: <strong>${offerStatus}</strong><br>
             Monthly amount: <strong>$${MONTHLY_AMOUNT}/month</strong><br>
