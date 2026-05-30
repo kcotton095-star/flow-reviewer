@@ -106,7 +106,7 @@ module.exports = async function handler(req, res) {
     console.error('[onboarding-trigger] DB upsert failed:', upsertError.message);
     await logWebhookEvent(db, 'financial_cents.onboarding_completed', client_email,
       'Failed', `DB upsert error: ${upsertError.message}`, body);
-    return res.status(500).json({ error: 'Database error' });
+    return res.status(500).json({ error: 'Database error', detail: upsertError.message, code: upsertError.code, hint: upsertError.hint });
   }
 
   console.log('[onboarding-trigger] Client upserted:', { name: client_name, email: client_email });
