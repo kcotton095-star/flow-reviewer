@@ -21,6 +21,7 @@
     { "src": "/api/metrics",            "dest": "/api/metrics.js" },
     { "src": "/api/daily-brief",        "dest": "/api/daily-brief.js" },
     { "src": "/api/new-client",         "dest": "/api/new-client.js" },
+    { "src": "/api/contact",             "dest": "/api/contact.js" },
     { "src": "/api/cron/upsell-check",  "dest": "/api/cron/upsell-check.js" },
     { "src": "/subscribe",              "dest": "/subscribe.html" },
     { "src": "/review/(.*)",            "dest": "/review.html" },
