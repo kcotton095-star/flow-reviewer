@@ -1,33 +1,40 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "api/*.js",       "use": "@vercel/node" },
-    { "src": "api/cron/*.js",  "use": "@vercel/node" },
-    { "src": "index.html",     "use": "@vercel/static" },
-    { "src": "review.html",    "use": "@vercel/static" },
-    { "src": "subscribe.html", "use": "@vercel/static" },
-    { "src": "favicon.svg",    "use": "@vercel/static" },
-    { "src": "data/*.json",    "use": "@vercel/static" },
-    { "src": "flow-portal.html",              "use": "@vercel/static" },
-    { "src": "flow-reviewer-dashboard.html",  "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/api/onboarding-trigger", "dest": "/api/onboarding-trigger.js" },
-    { "src": "/api/stripe-webhook",     "dest": "/api/stripe-webhook.js" },
-    { "src": "/api/review-config",      "dest": "/api/review-config.js" },
-    { "src": "/api/review-submit",      "dest": "/api/review-submit.js" },
-    { "src": "/api/dashboard-data",     "dest": "/api/dashboard-data.js" },
-    { "src": "/api/metrics",            "dest": "/api/metrics.js" },
-    { "src": "/api/daily-brief",        "dest": "/api/daily-brief.js" },
-    { "src": "/api/new-client",         "dest": "/api/new-client.js" },
-    { "src": "/api/contact",             "dest": "/api/contact.js" },
-    { "src": "/api/cron/upsell-check",  "dest": "/api/cron/upsell-check.js" },
-    { "src": "/subscribe",              "dest": "/subscribe.html" },
-    { "src": "/review/(.*)",            "dest": "/review.html" },
-    { "src": "/data/(.*)",              "dest": "/data/$1" },
-    { "src": "/portal",         "dest": "/flow-portal.html" },
-    { "src": "/command-center", "dest": "/flow-reviewer-dashboard.html" },
-    { "src": "/(.*)",                   "dest": "/index.html" }
-  ]
+    "version": 2,
+    "builds": [
+          { "src": "api/*.js",                     "use": "@vercel/node" },
+          { "src": "api/cron/*.js",                "use": "@vercel/node" },
+          { "src": "index.html",                   "use": "@vercel/static" },
+          { "src": "review.html",                  "use": "@vercel/static" },
+          { "src": "subscribe.html",               "use": "@vercel/static" },
+          { "src": "favicon.svg",                  "use": "@vercel/static" },
+          { "src": "data/*.json",                  "use": "@vercel/static" },
+          { "src": "flow-portal.html",             "use": "@vercel/static" },
+          { "src": "flow-reviewer-dashboard.html", "use": "@vercel/static" }
+    ],
+    "crons": [
+          {
+                  "path": "/api/cron/health-check",
+                  "schedule": "0 13 * * *"
+          }
+    ],
+    "routes": [
+          { "handle": "filesystem" },
+          { "src": "/api/onboarding-trigger", "dest": "/api/onboarding-trigger.js" },
+          { "src": "/api/stripe-webhook",     "dest": "/api/stripe-webhook.js" },
+          { "src": "/api/review-config",      "dest": "/api/review-config.js" },
+          { "src": "/api/review-submit",      "dest": "/api/review-submit.js" },
+          { "src": "/api/dashboard-data",     "dest": "/api/dashboard-data.js" },
+          { "src": "/api/metrics",            "dest": "/api/metrics.js" },
+          { "src": "/api/daily-brief",        "dest": "/api/daily-brief.js" },
+          { "src": "/api/new-client",         "dest": "/api/new-client.js" },
+          { "src": "/api/contact",            "dest": "/api/contact.js" },
+          { "src": "/api/cron/upsell-check",  "dest": "/api/cron/upsell-check.js" },
+          { "src": "/api/cron/health-check",  "dest": "/api/cron/health-check.js" },
+          { "src": "/subscribe",              "dest": "/subscribe.html" },
+          { "src": "/review/(.*)",            "dest": "/review.html" },
+          { "src": "/data/(.*)",              "dest": "/data/$1" },
+          { "src": "/portal",                 "dest": "/flow-portal.html" },
+          { "src": "/command-center",         "dest": "/flow-reviewer-dashboard.html" },
+          { "src": "/(.*)",                   "dest": "/index.html" }
+    ]
 }
