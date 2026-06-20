@@ -143,7 +143,7 @@ module.exports = async function handler(req, res) {
       await Promise.all([
         // Notification to Karen
         resend.emails.send({
-          from:     `Flow Bookkeeping Services <${FROM_EMAIL}>`,
+          from:     FROM_EMAIL.includes('<') ? FROM_EMAIL : `Flow Bookkeeping Services <${FROM_EMAIL}>`,
           to:       [KAREN_EMAIL],
           reply_to: email,
           subject:  `📋 New Lead: ${name}${tradeLine}`,
@@ -151,7 +151,7 @@ module.exports = async function handler(req, res) {
         }),
         // Confirmation to lead
         resend.emails.send({
-          from:    `Flow Bookkeeping Services <${FROM_EMAIL}>`,
+          from:    FROM_EMAIL.includes('<') ? FROM_EMAIL : `Flow Bookkeeping Services <${FROM_EMAIL}>`,
           to:      [email],
           subject: `Thanks for reaching out, ${firstName}! 👋`,
           html:    leadConfirmationHtml({ firstName }),
