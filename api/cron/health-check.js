@@ -27,10 +27,13 @@ async function checkSupabase() {
 async function checkResend() {
   try {
     if (!RESEND_KEY) throw new Error('RESEND_API_KEY not set');
-    const res = await fetch('https://api.resend.com/domains', {
-      headers: { Authorization: `Bearer ${RESEND_KEY}` },
+    // Probe with dummy POST /emails — 422 = valid key (bad data), 401 = invalid key
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to: 'ping@health.check', from: 'ping@health.check', subject: 'ping', html: 'ping' }),
     });
-    if (!res.ok) throw new Error(`Resend API returned ${res.status}`);
+    if (res.status === 401) throw new Error('Resend API key invalid (401)');
     return { name: 'resend', status: 'ok' };
   } catch (e) {
     return { name: 'resend', status: 'fail', error: e.message };
