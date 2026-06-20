@@ -111,7 +111,7 @@ module.exports = async function handler(req, res) {
       const { data, error } = await db
         .from('leads')
         .insert({
-          name,
+          first_name: name,
           email:      email.toLowerCase(),
           phone,
           trade_type: trade,
